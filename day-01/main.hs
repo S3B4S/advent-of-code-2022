@@ -7,18 +7,22 @@ import Data.List (maximumBy, sortBy)
 import Data.Either (rights)
 import Data.Ord (comparing)
 
+splitOn :: String -> T.Text -> [T.Text]
+splitOn delimeter text = (T.splitOn . T.pack $ delimeter) text
+
+rowToIntegers :: [T.Text] -> [Integer]
+rowToIntegers = map fst . rights . map TR.decimal
+
 main :: IO()
 main = do
   -- Parse puzzle input
   input <- TIO.readFile "./input.txt"
-  let grouped = T.splitOn (T.pack "\n\n") input
-  let splitElements = map (T.splitOn (T.pack "\n")) grouped
-  let elves = map (map fst . rights . map (\x ->  TR.decimal x)) splitElements
+  let elves = map (rowToIntegers . splitOn "\n") . (splitOn "\n\n") $ input
 
   -- Part 1
   let amountCaloriesOfMaxElf = sum . maximumBy (comparing sum) $ elves
-  print amountCaloriesOfMaxElf
+  print amountCaloriesOfMaxElf -- 70116
 
   -- Part 2
-  let amountCaloriesFirstThreeElves = (sum . map sum . take 3) $ sortBy ((flip . comparing) sum) elves
-  print amountCaloriesFirstThreeElves
+  let amountCaloriesFirstThreeElves = sum . concat . take 3 . sortBy (flip . comparing $ sum) $ elves
+  print amountCaloriesFirstThreeElves -- 206582
