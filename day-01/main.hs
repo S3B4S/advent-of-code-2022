@@ -8,7 +8,7 @@ import Data.Either (rights)
 import Data.Ord (comparing)
 
 splitOn :: String -> T.Text -> [T.Text]
-splitOn delimeter text = (T.splitOn . T.pack $ delimeter) text
+splitOn = T.splitOn . T.pack
 
 rowToIntegers :: [T.Text] -> [Integer]
 rowToIntegers = map fst . rights . map TR.decimal
