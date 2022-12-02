@@ -23,7 +23,7 @@ encodeOpponentMove :: Char -> OpponentMove
 encodeOpponentMove 'A' = Rock
 encodeOpponentMove 'B' = Paper
 encodeOpponentMove 'C' = Scissors
-encodeOpponentMove _ = error "Illegal move"
+encodeOpponentMove _ = error "Illegal opponent move"
 
 type MyMove = Hand
 
@@ -31,6 +31,7 @@ encodeMyMove :: Char -> MyMove
 encodeMyMove 'X' = Rock
 encodeMyMove 'Y' = Paper
 encodeMyMove 'Z' = Scissors
+encodeOpponentMove _ = error "Illegal own move"
 
 shapeSelectionPoints :: MyMove -> Integer
 shapeSelectionPoints Rock = 1
