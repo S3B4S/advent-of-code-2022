@@ -1,9 +1,21 @@
+{-# LANGUAGE ExplicitForAll #-}
+
 module Main where
 
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
-data Hand = Rock | Paper | Scissors deriving (Show)
+data Hand = Rock | Paper | Scissors deriving (Show, Eq)
+
+beatsHand :: Hand -> Hand
+beatsHand Rock = Scissors
+beatsHand Scissors = Paper
+beatsHand Paper = Rock
+
+beats :: Hand -> Hand -> Bool
+beats x y
+  | beatsHand x == y = True
+  | otherwise = False
 
 type OpponentMove = Hand
 
@@ -40,47 +52,31 @@ pointsOutcome Win = 6
 -- Part 1
 -- (OpponentMove, MyMove)
 rules :: (Hand, Hand) -> Outcome
-rules (Rock, Paper) = Win
-rules (Rock, Scissors) = Loss
-rules (Paper, Rock) = Loss
-rules (Paper, Scissors) = Win
-rules (Scissors, Rock) = Win
-rules (Scissors, Paper) = Loss
-rules _ = Draw -- all the other cases are draws
+rules (oppMove, myMove)
+  | oppMove == myMove       = Draw
+  | oppMove `beats` myMove  = Loss
+  | otherwise               = Win
 
-calculateBattle :: (OpponentMove, MyMove) -> Integer
-calculateBattle battle@(oppMove, myMove) = (shapeSelectionPoints myMove) + (pointsOutcome $ rules battle)
+calculateBattlePart1 :: (OpponentMove, MyMove) -> Integer
+calculateBattlePart1 battle@(oppMove, myMove) = (shapeSelectionPoints myMove) + (pointsOutcome $ rules battle)
 
 -- Part 2
 -- opponent move -> desired outcome -> my move
 pickMove :: Hand -> Outcome -> Hand
 pickMove hand Draw = hand
-pickMove Rock Win = Paper
-pickMove Rock Loss = Scissors
-pickMove Paper Win = Scissors
-pickMove Paper Loss = Rock
-pickMove Scissors Win = Rock
-pickMove Scissors Loss = Paper
+pickMove oppMove Win = (beatsHand . beatsHand) oppMove
+pickMove oppMove Loss = beatsHand oppMove
 
-calculateBattle2 :: (OpponentMove, Outcome) -> Integer
-calculateBattle2 battle@(oppMove, desiredOutcome) = (shapeSelectionPoints myMove) + (pointsOutcome desiredOutcome)
+calculateBattlePart2 :: (OpponentMove, Outcome) -> Integer
+calculateBattlePart2 battle@(oppMove, desiredOutcome) = shapeSelectionPoints myMove + pointsOutcome desiredOutcome
   where myMove = pickMove oppMove desiredOutcome
 
 -- Parsing
 splitOn :: String -> T.Text -> [T.Text]
 splitOn = T.splitOn . T.pack
 
-encodeLinePart1 :: String -> (OpponentMove, MyMove)
-encodeLinePart1 line = (encodeOpponentMove move, encodeMyMove outcome)
-  where
-    move = head line
-    outcome = last line
-
-encodeLinePart2 :: String -> (OpponentMove, Outcome)
-encodeLinePart2 line = (encodeOpponentMove move, encodeOutcome outcome)
-  where
-    move = head line
-    outcome = last line
+encodeLine :: forall a b. (Char -> a) -> (Char -> b) -> String -> (a, b)
+encodeLine f g line = (f $ head line, g $ last line)
 
 main :: IO ()
 main = do
@@ -89,7 +85,7 @@ main = do
   let inputParsed = (splitOn "\n") . T.strip $ input
 
   -- part 1
-  print $ sum $ map (calculateBattle . encodeLinePart1 . T.unpack) inputParsed -- 12535
+  print $ sum $ map (calculateBattlePart1 . encodeLine encodeOpponentMove encodeMyMove . T.unpack) inputParsed -- 12535
 
   -- part 2
-  print $ sum $ map (calculateBattle2 . encodeLinePart2 . T.unpack) inputParsed -- 15457
+  print $ sum $ map (calculateBattlePart2 . encodeLine encodeOpponentMove encodeOutcome . T.unpack) inputParsed -- 15457
