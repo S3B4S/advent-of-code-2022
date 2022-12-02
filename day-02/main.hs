@@ -85,7 +85,7 @@ main = do
   let inputParsed = (splitOn "\n") . T.strip $ input
 
   -- part 1
-  print $ sum $ map (calculateBattlePart1 . encodeLine encodeOpponentMove encodeMyMove . T.unpack) inputParsed -- 12535
+  print . sum . map (calculateBattlePart1 . encodeLine encodeOpponentMove encodeMyMove . T.unpack) $ inputParsed -- 12535
 
   -- part 2
-  print $ sum $ map (calculateBattlePart2 . encodeLine encodeOpponentMove encodeOutcome . T.unpack) inputParsed -- 15457
+  print . sum . map (calculateBattlePart2 . encodeLine encodeOpponentMove encodeOutcome . T.unpack) $ inputParsed -- 15457
