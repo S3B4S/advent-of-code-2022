@@ -12,10 +12,11 @@ beatsHand Rock = Scissors
 beatsHand Scissors = Paper
 beatsHand Paper = Rock
 
+losesTo :: Hand -> Hand
+losesTo = beatsHand . beatsHand
+
 beats :: Hand -> Hand -> Bool
-beats x y
-  | beatsHand x == y = True
-  | otherwise = False
+beats x y = beatsHand x == y
 
 type OpponentMove = Hand
 
@@ -31,7 +32,7 @@ encodeMyMove :: Char -> MyMove
 encodeMyMove 'X' = Rock
 encodeMyMove 'Y' = Paper
 encodeMyMove 'Z' = Scissors
-encodeOpponentMove _ = error "Illegal own move"
+encodeMyMove _ = error "Illegal own move"
 
 shapeSelectionPoints :: MyMove -> Integer
 shapeSelectionPoints Rock = 1
@@ -65,7 +66,7 @@ calculateBattlePart1 battle@(oppMove, myMove) = (shapeSelectionPoints myMove) + 
 -- opponent move -> desired outcome -> my move
 pickMove :: Hand -> Outcome -> Hand
 pickMove hand Draw = hand
-pickMove oppMove Win = (beatsHand . beatsHand) oppMove
+pickMove oppMove Win = losesTo oppMove
 pickMove oppMove Loss = beatsHand oppMove
 
 calculateBattlePart2 :: (OpponentMove, Outcome) -> Integer
