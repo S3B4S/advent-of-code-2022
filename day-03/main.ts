@@ -1,12 +1,17 @@
 import fs from 'fs'
+import { chunksOfN, compose, sum } from '../utilts'
 
 type Rucksack = [string, string]
 
 const UPPER_CASE_CORRECTION = 38
 const LOWER_CASE_CORRECTION = 96
 
-const sum = (a: number, b: number) => a + b
 const priorityChar = (char: string) => char.charCodeAt(0) - (char.toUpperCase() === char ? UPPER_CASE_CORRECTION : LOWER_CASE_CORRECTION)
+
+const strToObject = (str: string): Record<string, boolean> => str.split('').reduce((acc, c) => ({
+  ...acc,
+  [c]: true,
+}), {})
 
 /**
  * Finds if there is a duplicate char across compartments
@@ -18,18 +23,15 @@ const findDuplicateInRucksack = (rucksack: Rucksack): string => {
   return rucksack[0].split('').find(c => rucksack[1].includes(c))!
 }
 
-const strToObject = (str: string): Record<string, boolean> => str.split('').reduce((acc, c) => ({
-  ...acc,
-  [c]: true,
-}), {})
-
-const findDuplicateAmongElves = (rucksacks: string[]): string => {
-  const found = [
-    strToObject(rucksacks[0]), // chars found in rucksack of elf 1
-    strToObject(rucksacks[1]), // chars found in rucksack of elf 2
-  ]
-
-  return rucksacks[2].split('').find(c => found[0][c] && found[1][c])!
+/**
+ * Finds the character that's present in all strings.
+ * Assumes this duplicated character is always present.
+ * @param rucksacks 
+ * @returns character
+ */
+const charInAll = (rucksacks: string[]): string => {
+  const found = rucksacks.slice(0, rucksacks.length - 2).map(strToObject)
+  return rucksacks[rucksacks.length - 1].split('').find(c => found.every(r => r[c]))!
 }
 
 const parseInputLine = (line: string): Rucksack => {
@@ -37,11 +39,9 @@ const parseInputLine = (line: string): Rucksack => {
   return [line.substring(0, middle), line.substring(middle, line.length)]
 }
 
-const chunksOfN = (n: number) => <T>(input: T[]): T[][] => {
-  if (input.length <= n) return [input]
-  return [input.slice(0, n)].concat(chunksOfN(n)(input.slice(n)));
-}
-
+/**
+ * Example: chunks3([1, 2, 3, 4, 5, 6, 7]) -> [[1, 2, 3],  [4, 5, 6], [7]]
+ */
 const chunks3 = chunksOfN(3);
 
 // @TODO Fix path
@@ -51,12 +51,18 @@ const parsed = input
   .split('\n')
 
 const part1 = parsed
-  .map(l => priorityChar(findDuplicateInRucksack(parseInputLine(l))))
+  .map(compose(
+    priorityChar,
+    findDuplicateInRucksack,
+    parseInputLine,
+  ))
   .reduce(sum)
 
 const part2 = chunks3(parsed)
-  .map(findDuplicateAmongElves)
-  .map(priorityChar)
+  .map(compose(
+    priorityChar,
+    charInAll,
+  ))
   .reduce(sum)
 
 console.log(part1) // 8252
