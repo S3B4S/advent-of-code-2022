@@ -14,4 +14,3 @@ const print: [number, any, any][] = [
 ]
 
 print.forEach(([d, one, two], i) => printDay(d, one, two, i !== print.length - 1))
-
