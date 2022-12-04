@@ -13,3 +13,11 @@ export const chunksOfN = (n: number) => <T>(input: T[]): T[][] => {
   if (input.length <= n) return [input]
   return [input.slice(0, n)].concat(chunksOfN(n)(input.slice(n)));
 }
+
+export const countByC = <T>(predicate: (t: T) => boolean) => (list: T[]) => {
+  return list.reduce((count, x) => count + Number(predicate(x)), 0)
+}
+
+export const countBy = <T>(predicate: (t: T) => boolean, list: T[]) => {
+  return countByC(predicate)(list)
+}
