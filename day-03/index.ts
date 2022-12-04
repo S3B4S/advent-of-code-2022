@@ -45,12 +45,12 @@ const parseInputLine = (line: string): Rucksack => {
 const chunks3 = chunksOfN(3);
 
 // @TODO Fix path
-const input = fs.readFileSync(__dirname + '/../day-03/input.txt', 'utf-8')
+const input = fs.readFileSync(__dirname + '/../../day-03/input.txt', 'utf-8')
 const parsed = input
   .trim()
   .split('\n')
 
-const part1 = parsed
+export const part1 = parsed
   .map(compose(
     priorityChar,
     findDuplicateInRucksack,
@@ -58,12 +58,9 @@ const part1 = parsed
   ))
   .reduce(sum)
 
-const part2 = chunks3(parsed)
+export const part2 = chunks3(parsed)
   .map(compose(
     priorityChar,
     charInAll,
   ))
   .reduce(sum)
-
-console.log(part1) // 8252
-console.log(part2) // 2828

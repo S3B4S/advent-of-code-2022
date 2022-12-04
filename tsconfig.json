@@ -6,9 +6,4 @@
     "module": "commonjs",
     "noImplicitAny": true,
   },
-  "include": [
-    "./main.ts",
-    "./day-04/*.ts",
-    "./utilts.ts",
-  ]
 }
