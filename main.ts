@@ -1,3 +1,3 @@
-import { part1 } from './day-04';
+import { part1, part2 } from './day-04';
 
-console.log(part1)
+console.log(part1, part2)
