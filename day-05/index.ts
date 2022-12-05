@@ -82,9 +82,8 @@ const containersParsed = takeWhile(l => !columnLine(l), input)
 const instructions = dropWhile(l => !instructionLine(l), input)
   .map(parseInstruction)
 
-const containersPart1 = 
-  transpose(containersParsed)
-    .map(containers => containers.filter(c => c !== ''))
+const containersPart1 = transpose(containersParsed)
+  .map(containers => containers.filter(c => c !== ''))
 
 const containersPart2 = JSON.parse(JSON.stringify(containersPart1))
 
