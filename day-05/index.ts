@@ -1,7 +1,6 @@
 import fs from 'fs';
-import { compose, dropWhile, map, takeWhile, transpose } from '../utilts';
+import { dropWhile, map, takeWhile, transpose } from '../utilts';
 import { flow, pipe } from 'fp-ts/function'
-import { negate } from 'fp-ts/lib/Ring';
 import { not } from 'fp-ts/lib/Predicate';
 
 type Containers = string[][]
