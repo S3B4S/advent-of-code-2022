@@ -1,15 +1,15 @@
 import fs from 'fs';
 import { compose } from '../utilts';
 
-type Containers = (string | undefined)[][]
+type Containers = string[][]
 
 const transpose = <T>(matrix: T[][]) => {
   const res = Array.from({ length: matrix[0].length }).map(() => [])
   
   for (let rowIndex = matrix.length - 1; rowIndex >= 0; rowIndex--) {
-    const row = matrix[rowIndex];
+    const row = matrix[rowIndex]
     for (let elIndex = 0; elIndex < row.length; elIndex++) {
-      const element = row[elIndex];
+      const element = row[elIndex]
       res[elIndex].push(element)
     }
   }
@@ -76,29 +76,33 @@ const buildContainers = (parsedLines: string[]) => parsedLines.map(l => {
   return res.slice(1,2)
 })
 
-const input = fs.readFileSync(__dirname + '/../../day-05/input.txt', 'utf-8')
-const containers = 
-  transpose(takeWhile(l => !columnLine(l), input.trimEnd().split('\n'))
-    .map(compose(
-      buildContainers,
-      parseContainerLine
-  ))).map(containers => containers.filter(c => c !== ''))
-  
-console.log(containers)
-  
-const instructions = dropWhile(l => !instructionLine(l), input.trimEnd().split('\n'))
+const input = fs.readFileSync(__dirname + '/../../day-05/input.txt', 'utf-8').trimEnd().split('\n')
+const containersParsed = takeWhile(l => !columnLine(l), input)
+  .map(compose(
+    buildContainers,
+    parseContainerLine
+  ))
+const instructions = dropWhile(l => !instructionLine(l), input)
+  .map(parseInstruction)
+
+const containersPart1 = 
+  transpose(containersParsed)
+    .map(containers => containers.filter(c => c !== ''))
+
+const containersPart2 = JSON.parse(JSON.stringify(containersPart1))
+
 
 // part 1
 for (const instruction of instructions) {
-  moveContainersOneByOne(containers, parseInstruction(instruction))
+  moveContainersOneByOne(containersPart1, instruction)
 }
 
 // part 2
 for (const instruction of instructions) {
-  moveContainersGrouped(containers, parseInstruction(instruction))
+  moveContainersGrouped(containersPart2, instruction)
 }
 
-console.log(containers)
+const getSolution = (containers: Containers) => containers.map(c => c[c.length - 1]).join('')
 
-export const part1 = containers.map(c => c[c.length - 1]).join('')
-export const part2 = ''
+export const part1 = getSolution(containersPart1)
+export const part2 = getSolution(containersPart2)

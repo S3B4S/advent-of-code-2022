@@ -12,7 +12,7 @@ const printDay = (day: number, part1: any, part2: any, endsWithNewLine: boolean 
 const print: [number, any, any][] = [
   [3, Day3.part1 /* 8252 */, Day3.part2 /* 2828 */],
   [4, Day4.part1 /* 466 */, Day4.part2 /* 865 */],
-  [5, Day5.part1 /* X */, Day5.part2 /* Y */],
+  [5, Day5.part1 /* FCVRLMVQP */, Day5.part2 /* RWLWGJGFD */],
 ]
 
 print.forEach(([d, one, two], i) => printDay(d, one, two, i !== print.length - 1))
