@@ -48,7 +48,7 @@ const moveContainersGrouped = (containers: Containers, [amount, from, to]: [numb
   containers[to] = containers[to].concat(toMove.reverse())
 }
 
-const input = fs.readFileSync(__dirname + '/../../day-05/input.txt', 'utf-8').trimEnd().split('\n')
+const input = fs.readFileSync(__dirname + '/../../05_supply-stacks/input.txt', 'utf-8').trimEnd().split('\n')
 const instructions = dropWhile(l => !instructionLine(l), input).map(parseInstruction)
 
 const containersParsed = pipe(

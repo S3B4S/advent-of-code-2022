@@ -45,7 +45,7 @@ const parseInputLine = (line: string): Rucksack => {
 const chunks3 = chunksOfN(3);
 
 // @TODO Fix path
-const input = fs.readFileSync(__dirname + '/../../day-03/input.txt', 'utf-8')
+const input = fs.readFileSync(__dirname + '/../../03_rucksack-reorganization/input.txt', 'utf-8')
 const parsed = input
   .trim()
   .split('\n')
