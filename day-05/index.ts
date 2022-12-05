@@ -88,7 +88,6 @@ const containersPart1 =
 
 const containersPart2 = JSON.parse(JSON.stringify(containersPart1))
 
-
 // part 1
 for (const instruction of instructions) {
   moveContainersOneByOne(containersPart1, instruction)
