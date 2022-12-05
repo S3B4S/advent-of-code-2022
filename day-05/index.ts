@@ -72,21 +72,22 @@ const parseContainerLine = (line: string): string[] => {
   return [line.slice(0, 3)].concat(parseContainerLine(line.slice(4)))
 }
 
-const unpackContainers = (parsedLines: string[]) => parsedLines.map(l => {
-  const res = l.trim()
+const unpackContainer = (container: string) => {
+  const res = container.trim()
   if (res === '') return res
   
   return res.slice(1,2)
-})
+}
 
 const input = fs.readFileSync(__dirname + '/../../day-05/input.txt', 'utf-8').trimEnd().split('\n')
-const containersParsed = takeWhile(l => !columnLine(l), input)
-  .map(compose(
-    unpackContainers,
-    parseContainerLine
-  ))
 const instructions = dropWhile(l => !instructionLine(l), input)
   .map(parseInstruction)
+
+const containersParsed = takeWhile(l => !columnLine(l), input)
+  .map(compose(
+    containers => containers.map(unpackContainer),
+    parseContainerLine
+  ))
 
 const containersPart1 = transpose(containersParsed)
   .map(containers => containers.filter(c => c !== ''))
