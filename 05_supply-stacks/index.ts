@@ -1,7 +1,9 @@
 import fs from 'fs';
 import { dropWhile, map, takeWhile, transpose } from '../utilts';
 import { flow, pipe } from 'fp-ts/function'
-import { not } from 'fp-ts/lib/Predicate';
+import { not } from 'fp-ts/lib/Predicate'
+import { filter } from 'fp-ts/lib/Array'
+import { isEmpty as isEmptyString } from 'fp-ts/lib/string'
 
 type Containers = string[][]
 
@@ -63,7 +65,7 @@ const containersParsed = pipe(
 const containersPart1 = pipe(
   containersParsed,
   transpose,
-  map(stack => stack.filter(c => c !== ''))
+  map(filter(not(isEmptyString)))
 )
 
 const containersPart2 = JSON.parse(JSON.stringify(containersPart1))
