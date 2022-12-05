@@ -22,11 +22,20 @@ const transpose = <T>(matrix: T[][]) => {
  * @param containers 
  * @param param1 
  */
-const moveContainer = (containers: Containers, [amount, from, to]: [number, number, number]) => {
+const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [number, number, number]) => {
   for (let i = 0; i < amount; i++) {
     const el = containers[from].pop()
     containers[to].push(el)
   }
+}
+
+const moveContainersGrouped = (containers: Containers, [amount, from, to]: [number, number, number]) => {
+  const toMove = []
+  for (let i = 0; i < amount; i++) {
+    const el = containers[from].pop()
+    toMove.push(el)
+  }
+  containers[to] = containers[to].concat(toMove.reverse())
 }
 
 const takeWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
@@ -79,12 +88,15 @@ console.log(containers)
   
 const instructions = dropWhile(l => !instructionLine(l), input.trimEnd().split('\n'))
 
+// part 1
 for (const instruction of instructions) {
-  // console.log('======')
-  // console.log(parseInstruction(instruction))
-  moveContainer(containers, parseInstruction(instruction))
+  moveContainersOneByOne(containers, parseInstruction(instruction))
 }
-// moveContainer(containers, [6, 8, 2])
+
+// part 2
+for (const instruction of instructions) {
+  moveContainersGrouped(containers, parseInstruction(instruction))
+}
 
 console.log(containers)
 
