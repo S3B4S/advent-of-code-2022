@@ -6,7 +6,6 @@ import { not } from 'fp-ts/lib/Predicate';
 type Containers = string[][]
 
 const instructionLine = (line: string) => line.trim().startsWith('move')
-const containerLine = (line: string) => line.trim().startsWith('[')
 const columnLine = (line: string) => line.trim().startsWith('1')
 
 type Instruction = [
