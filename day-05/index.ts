@@ -17,11 +17,7 @@ const transpose = <T>(matrix: T[][]) => {
   return res
 }
 
-/**
- * MUTATING!
- * @param containers 
- * @param param1 
- */
+/** MUTATING! */
 const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [number, number, number]) => {
   for (let i = 0; i < amount; i++) {
     const el = containers[from].pop()
@@ -29,6 +25,7 @@ const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [num
   }
 }
 
+/** MUTATING! */
 const moveContainersGrouped = (containers: Containers, [amount, from, to]: [number, number, number]) => {
   const toMove = []
   for (let i = 0; i < amount; i++) {
