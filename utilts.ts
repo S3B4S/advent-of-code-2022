@@ -7,6 +7,12 @@ export const compose = <T extends UnaryFn[]>(...fns: T) => (x: ParameterUnaryFn<
   return fns.reduceRight((acc: any, fn: any) => fn(acc), x)
 }
 
+// @ts-ignore
+export const pipe = <T extends UnaryFn[]>(fns: T, val: any): ReturnType<ArrayLast<T>> => {
+  // @ts-ignore
+  return compose(fns)(val)
+}
+
 export const sum = (a: number, b: number) => a + b
 
 export const chunksOfN = (n: number) => <T>(input: T[]): T[][] => {
@@ -21,3 +27,38 @@ export const countByC = <T>(predicate: (t: T) => boolean) => (list: T[]) => {
 export const countBy = <T>(predicate: (t: T) => boolean, list: T[]) => {
   return countByC(predicate)(list)
 }
+
+export const transpose = <T>(matrix: T[][]) => {
+  const res = Array.from({ length: matrix[0].length }).map(() => [])
+  
+  for (let rowIndex = matrix.length - 1; rowIndex >= 0; rowIndex--) {
+    const row = matrix[rowIndex]
+    for (let elIndex = 0; elIndex < row.length; elIndex++) {
+      const element = row[elIndex]
+      res[elIndex].push(element)
+    }
+  }
+
+  return res
+}
+
+export const takeWhile = <T>(predicate: (e: T) => boolean) => (list: T[]) => {
+  const res = []
+  for (const el of list) {
+    if (predicate(el)) {
+      res.push(el)
+    } else {
+      return res
+    }
+  }
+  return res
+}
+
+export const dropWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
+  const index = list.findIndex(e => !predicate(e))
+  return list.slice(index)
+}
+
+export const map = <A, B>(fn: (a: A) => B) => (list: A[]) => list.map(fn)
+export const filter = <T>(p: (a: T) => boolean) => (list: T[]) => list.filter(p)
+export const reduce = <A, T>(fn: (a: A, el: T) => A) => (initValue: A) => (list: T[]) => list.reduce(fn, initValue)

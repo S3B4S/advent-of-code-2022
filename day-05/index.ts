@@ -1,57 +1,10 @@
 import fs from 'fs';
-import { compose } from '../utilts';
-
-/* Utils, to be added to the folder later */
-const transpose = <T>(matrix: T[][]) => {
-  const res = Array.from({ length: matrix[0].length }).map(() => [])
-  
-  for (let rowIndex = matrix.length - 1; rowIndex >= 0; rowIndex--) {
-    const row = matrix[rowIndex]
-    for (let elIndex = 0; elIndex < row.length; elIndex++) {
-      const element = row[elIndex]
-      res[elIndex].push(element)
-    }
-  }
-
-  return res
-}
-
-const takeWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
-  const res = []
-  for (const el of list) {
-    if (predicate(el)) {
-      res.push(el)
-    } else {
-      return res
-    }
-  }
-  return res
-}
-
-const dropWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
-  const index = list.findIndex(e => !predicate(e))
-  return list.slice(index)
-}
+import { compose, dropWhile, map, takeWhile, transpose } from '../utilts';
+import { flow, pipe } from 'fp-ts/function'
+import { negate } from 'fp-ts/lib/Ring';
+import { not } from 'fp-ts/lib/Predicate';
 
 type Containers = string[][]
-
-/** MUTATING! */
-const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [number, number, number]) => {
-  for (let i = 0; i < amount; i++) {
-    const el = containers[from].pop()
-    containers[to].push(el)
-  }
-}
-
-/** MUTATING! */
-const moveContainersGrouped = (containers: Containers, [amount, from, to]: [number, number, number]) => {
-  const toMove = []
-  for (let i = 0; i < amount; i++) {
-    const el = containers[from].pop()
-    toMove.push(el)
-  }
-  containers[to] = containers[to].concat(toMove.reverse())
-}
 
 const instructionLine = (line: string) => line.trim().startsWith('move')
 const containerLine = (line: string) => line.trim().startsWith('[')
@@ -79,28 +32,46 @@ const unpackContainer = (container: string) => {
   return res.slice(1,2)
 }
 
+/** MUTATING! */
+const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [number, number, number]) => {
+  for (let i = 0; i < amount; i++) {
+    const el = containers[from].pop()
+    containers[to].push(el)
+  }
+}
+
+/** MUTATING! */
+const moveContainersGrouped = (containers: Containers, [amount, from, to]: [number, number, number]) => {
+  const toMove = []
+  for (let i = 0; i < amount; i++) {
+    const el = containers[from].pop()
+    toMove.push(el)
+  }
+  containers[to] = containers[to].concat(toMove.reverse())
+}
+
 const input = fs.readFileSync(__dirname + '/../../day-05/input.txt', 'utf-8').trimEnd().split('\n')
-const instructions = dropWhile(l => !instructionLine(l), input)
-  .map(parseInstruction)
+const instructions = dropWhile(l => !instructionLine(l), input).map(parseInstruction)
 
-const containersParsed = takeWhile(l => !columnLine(l), input)
-  .map(compose(
+const containersParsed = pipe(
+  input,
+  takeWhile(not(columnLine)),
+  map(flow(
+    parseContainerLine,
     containers => containers.map(unpackContainer),
-    parseContainerLine
   ))
+)
 
-const containersPart1 = transpose(containersParsed)
-  .map(containers => containers.filter(c => c !== ''))
+const containersPart1 = pipe(
+  containersParsed,
+  transpose,
+  map(stack => stack.filter(c => c !== ''))
+)
 
 const containersPart2 = JSON.parse(JSON.stringify(containersPart1))
 
-// part 1
 for (const instruction of instructions) {
   moveContainersOneByOne(containersPart1, instruction)
-}
-
-// part 2
-for (const instruction of instructions) {
   moveContainersGrouped(containersPart2, instruction)
 }
 

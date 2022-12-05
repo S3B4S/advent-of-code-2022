@@ -18,5 +18,8 @@
   "homepage": "https://github.com/S3B4S/advent-of-code-2022#readme",
   "devDependencies": {
     "@types/node": "^18.11.10"
+  },
+  "dependencies": {
+    "fp-ts": "^2.13.1"
   }
 }
