@@ -16,6 +16,12 @@ I did not ask this of the ai, so it makes sense it was not in the script.
 - fs.writeFileSync(`input.txt`, input);
 + fs.writeFileSync(`./day-${String(day).padStart(2, '0')}/input.txt`, input);
 ```
+
+## Year
+```diff
+- const year = new Date().getFullYear()
++ const year 2022
+```
 */
 
 const fs = require('fs');
@@ -23,7 +29,7 @@ const https = require('https');
 
 // Get the year and day from the command line arguments
 const cookie = process.env.COOKIE
-const year = new Date().getFullYear();
+const year = 2022;
 const day = process.argv[2];
 
 // Function to download the puzzle input

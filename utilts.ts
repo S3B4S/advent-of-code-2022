@@ -15,9 +15,28 @@ export const pipe = <T extends UnaryFn[]>(fns: T, val: any): ReturnType<ArrayLas
 
 export const sum = (a: number, b: number) => a + b
 
+/**
+ * Splits a given list in chunks of size N.
+ * Size of last chunk may be smaller than N.
+ * 
+ * Example: chunksOfN(3)([1, 2, 3, 4, 5, 6, 7, 8]) -> [[1, 2, 3], [4, 5, 6], [7, 8]]
+ * @param n size of each chunk
+ * @returns list of chunks
+ */
 export const chunksOfN = (n: number) => <T>(input: T[]): T[][] => {
   if (input.length <= n) return [input]
   return [input.slice(0, n)].concat(chunksOfN(n)(input.slice(n)));
+}
+
+/**
+ * Slides a window over string or array. For example, if n is 3 and input is "hello",
+ * the function will return an array of substrings of length 3: ["hel", "ell", "llo"].
+ * @param n the window size
+ * @returns all scanned items
+ */
+export const sliding = (n: number) => (input: string): string[] => {
+  if (input.length <= n) return [input]
+  return [input.slice(0, n)].concat(sliding(n)(input.slice(1)))
 }
 
 export const countByC = <T>(predicate: (t: T) => boolean) => (list: T[]) => {
@@ -62,19 +81,3 @@ export const dropWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
 export const map = <A, B>(fn: (a: A) => B) => (list: A[]) => list.map(fn)
 export const filter = <T>(p: (a: T) => boolean) => (list: T[]) => list.filter(p)
 export const reduce = <A, T>(fn: (a: A, el: T) => A) => (initValue: A) => (list: T[]) => list.reduce(fn, initValue)
-
-/**
- * Exmaple, if n = 4: "cdsaffjdsakl" -> [
- *   "cdsa",
- *   "dsaf",
- *   "saff",
- *   ....
- *   "sakl",
- * ]
- * @param n 
- * @returns all scanned items
- */
-export const scanN = (n: number) => (input: string): string[] => {
-  if (input.length <= n) return [input]
-  return [input.slice(0, n)].concat(scanN(n)(input.slice(1)))
-}
