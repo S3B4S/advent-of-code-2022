@@ -1,7 +1,7 @@
 import * as Day3 from './03_rucksack-reorganization'
 import * as Day4 from './04_camp-cleanup'
 import * as Day5 from './05_supply-stacks'
-import * as Day6 from './day-06';
+import * as Day6 from './06_tuning-trouble';
 import * as Day7 from './day-07';
 import * as Day8 from './day-08';
 import * as Day9 from './day-09';
@@ -34,7 +34,7 @@ const print: [number, any, any][] = [
   [3, Day3.part1 /* 8252 */, Day3.part2 /* 2828 */],
   [4, Day4.part1 /* 466 */, Day4.part2 /* 865 */],
   [5, Day5.part1 /* FCVRLMVQP */, Day5.part2 /* RWLWGJGFD */],
-  [6, Day6.part1 /* X */, Day6.part2 /* Y */],
+  [6, Day6.part1 /* 1876 */, Day6.part2 /* 2202 */],
   [7, Day7.part1 /* X */, Day7.part2 /* Y */],
   [8, Day8.part1 /* X */, Day8.part2 /* Y */],
   [9, Day9.part1 /* X */, Day9.part2 /* Y */],
