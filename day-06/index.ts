@@ -8,6 +8,7 @@ const scanN = (n: number) => (input: string): string[] => {
 }
 
 const scan4 = scanN(4)
+const scan14 = scanN(14)
 
 const uniqueString = (input: string) => {
   const found: Record<string, boolean> = {}
@@ -25,4 +26,4 @@ console.log(scan4(input))
 
 
 export const part1 = scan4(input).findIndex(uniqueString) + 4
-export const part2 = ''
+export const part2 = scan14(input).findIndex(uniqueString) + 14
