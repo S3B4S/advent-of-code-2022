@@ -13,7 +13,7 @@ This script is used to download the puzzle input for a particular day of [Advent
 2. Run the script with the day number as a command line argument, for example:
 
 ```
-node download-input.js 5
+node download-puzzle-input.js 5
 ```
 
 This will download the puzzle input for day 5 of Advent of Code and save it to a file called `input.txt` in the `day-05` directory.
