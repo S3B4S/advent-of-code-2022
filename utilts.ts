@@ -63,6 +63,17 @@ export const map = <A, B>(fn: (a: A) => B) => (list: A[]) => list.map(fn)
 export const filter = <T>(p: (a: T) => boolean) => (list: T[]) => list.filter(p)
 export const reduce = <A, T>(fn: (a: A, el: T) => A) => (initValue: A) => (list: T[]) => list.reduce(fn, initValue)
 
+/**
+ * Exmaple, if n = 4: "cdsaffjdsakl" -> [
+ *   "cdsa",
+ *   "dsaf",
+ *   "saff",
+ *   ....
+ *   "sakl",
+ * ]
+ * @param n 
+ * @returns all scanned items
+ */
 export const scanN = (n: number) => (input: string): string[] => {
   if (input.length <= n) return [input]
   return [input.slice(0, n)].concat(scanN(n)(input.slice(1)))
