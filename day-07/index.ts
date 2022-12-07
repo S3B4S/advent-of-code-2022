@@ -150,10 +150,10 @@ const calculateDirectorySize = (directory: Directory): number => {
   // base case
   if (isLeaf(directory)) {
     const leafSize = Object.values(directory.files).reduce(sum, 0) as number // FIX
-    console.log('-------- Base case')
-    console.log(directory)
+    // console.log('-------- Base case')
+    // console.log(directory)
     directory.totalSize = leafSize
-    console.log(directory)
+    // console.log(directory)
     return leafSize
   }
 
@@ -187,5 +187,11 @@ calculateDirectorySize(fileSystem)
 const allSizesFlattened = sizesFlatFS(fileSystem['/'])
 // console.log(allSizesFlattened)
 
+const TOTAL_DISK_SPACE = 70000000
+const UNUSED_SPACE_NEEDED = 30000000
+const unusedSpace = TOTAL_DISK_SPACE - fileSystem['/'].totalSize
+const remainingSpaceToDelete = UNUSED_SPACE_NEEDED - unusedSpace
+// console.log(remainingSpaceToDelete)
+
 export const part1 = allSizesFlattened.filter(size => size < 100000).reduce(sum)
-export const part2 = ''
+export const part2 = allSizesFlattened.filter(size => size >= remainingSpaceToDelete).sort((a, b) => a - b)[0]
