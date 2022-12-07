@@ -22,7 +22,7 @@ const parseLine = (line: string): [Command, string?, number?] => {
   return [Command.FileSize, split[1], Number(split[0])]
 }
 
-const input = fs.readFileSync(__dirname + '/../../day-07/input.txt', 'utf-8').trim().split('\n')
+const input = fs.readFileSync(__dirname + '/../../07_no-space-left-on-device/input.txt', 'utf-8').trim().split('\n')
 
 /// Construct filesystem
 const fileSystem: Directory = {}
