@@ -1,12 +1,7 @@
 import fs from 'fs';
 import { sum } from '../utilts';
 
-// interface File {
-//   [k: string]: File
-//   size?: number
-//   children: File[]
-// }
-
+// @FIX
 // type Directory = Record<string, {
 //   [k: string]: any // fix this
 //   name: string
@@ -29,66 +24,11 @@ const parseLine = (line: string): [Command, string?, number?] => {
 
 const input = fs.readFileSync(__dirname + '/../../day-07/input.txt', 'utf-8').trim().split('\n')
 
-// const input = `
-// $ cd /
-// $ ls
-// dir a
-// 14848514 b.txt
-// 8504156 c.dat
-// dir d
-// $ cd a
-// $ ls
-// dir e
-// 29116 f
-// 2557 g
-// 62596 h.lst
-// $ cd e
-// $ ls
-// 584 i
-// $ cd ..
-// $ cd ..
-// $ cd d
-// $ ls
-// 4060174 j
-// 8033020 d.log
-// 5626152 d.ext
-// 7214296 k
-// `.trim().split('\n')
-
-const example: Directory = {
-  '/': {
-    name: '/',
-    '..': undefined,
-    cgw: {
-      name: 'cgw',
-      '..': '/',
-    },
-    fbhz: {
-      name: 'fbhz',
-      '..': '/',
-    },
-    lvrzvt: {
-      name: 'lvrzvt',
-      '..': '/',
-    },
-    vwlps: {
-      name: 'vwlps',
-      '..': '/',
-    },
-    files: {
-      vngq: 224312
-    }
-  }
-}
-
-// Construct filesystem
+/// Construct filesystem
 const fileSystem: Directory = {}
 let currentLocation: Directory
 
 input.forEach(line => {
-  // console.log('---------')
-  // console.log(currentLocation)
-  // console.log(JSON.stringify(fileSystem, null, 2))
   const [command, argument, fileSize] = parseLine(line)
   switch (command) {
     case Command.Cd:
@@ -104,13 +44,7 @@ input.forEach(line => {
         return
       }
 
-      // Move to parent
-      if (argument === "..") {
-        currentLocation = currentLocation['..']
-        return
-      }
-
-      // Move location deeper
+      // Move
       // It seems the location is always found through ls before cding it
       // So we can assume the location already exists
       currentLocation = currentLocation[argument]
@@ -132,9 +66,7 @@ input.forEach(line => {
   }
 })
 
-// console.log(fileSystem)
-
-// Calculate directory sizes
+/// Calculate directory sizes
 
 /**
  * A direcotry is a leaf if it does not contain any other directories
@@ -150,10 +82,7 @@ const calculateDirectorySize = (directory: Directory): number => {
   // base case
   if (isLeaf(directory)) {
     const leafSize = Object.values(directory.files).reduce(sum, 0) as number // FIX
-    // console.log('-------- Base case')
-    // console.log(directory)
     directory.totalSize = leafSize
-    // console.log(directory)
     return leafSize
   }
 
@@ -172,9 +101,6 @@ const sizesFlatFS = (directory: Directory): number[] => {
     return [directory.totalSize]
   }
 
-  // console.log('----- Not base case ---')
-  // console.log(directory)
-  // console.log(directory.totalSize)
   const sizes = Object.entries(directory)
     .filter(([childKey]) => childKey !== '..' && childKey !== 'files' && childKey !== 'name' && childKey !== 'totalSize')
     .map(([, d]) => sizesFlatFS(d))
@@ -183,15 +109,12 @@ const sizesFlatFS = (directory: Directory): number[] => {
 }
 
 calculateDirectorySize(fileSystem)
-// console.log(fileSystem)
 const allSizesFlattened = sizesFlatFS(fileSystem['/'])
-// console.log(allSizesFlattened)
 
 const TOTAL_DISK_SPACE = 70000000
 const UNUSED_SPACE_NEEDED = 30000000
 const unusedSpace = TOTAL_DISK_SPACE - fileSystem['/'].totalSize
 const remainingSpaceToDelete = UNUSED_SPACE_NEEDED - unusedSpace
-// console.log(remainingSpaceToDelete)
 
 export const part1 = allSizesFlattened.filter(size => size < 100000).reduce(sum)
 export const part2 = allSizesFlattened.filter(size => size >= remainingSpaceToDelete).sort((a, b) => a - b)[0]
