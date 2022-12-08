@@ -88,13 +88,15 @@ export type Coordinate = [Row, Column]
 export enum Direction { North, East, South, West }
 
 /**
- * Applies the provided function to the elements in the specified direction in a two-dimensional array, starting from the provided coordinate.
- * The function is applied to each element in the specified direction until it returns `true` or all elements have been visited.
+ * Iterates over the elements of a 2D map in a given direction from a starting point.
  *
- * @param coordinate The starting coordinate
- * @param map The two-dimensional array to iterate over
- * @param direction The direction in which to apply the function
- * @param fn The function to apply to each element
+ * @param coordinate The starting point [row, column] from which to begin the iteration.
+ * @param map The 2D array to iterate over.
+ * @returns An object with four properties: "North", "East", "South", and "West".
+ * Each property is a function that takes a callback as an argument, and will call
+ * the callback for each element in the map starting from the starting point in the
+ * specified direction, until the callback returns a truthy value or the edge of the
+ * map is reached.
  */
 export const directionIterator = <T>([row, column]: Coordinate, map: T[][]) => {
   type CallbackFn = (t: T) => boolean
