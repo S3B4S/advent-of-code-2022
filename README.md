@@ -10,24 +10,57 @@ In addition, the `/scripts` folder contains utility scripts that automate some t
 
 ## Usage
 
-To use the solutions in this repository, clone the repository and run the `npm run start` script located in the root directory. You can do this by running the following command from the root directory:
+To use the solutions in this repository, clone the repository and run the `npm run start` script located in the root directory. You can do this by running the following command from the root directory, this will run all of the solutions in the repository.
 
 ```
-npm run start
+$ npm run start
+
+┌────────┬───────────┬───────────┐
+│ Days   │ Part 1    │ Part 2    │
+├────────┼───────────┼───────────┤
+│ Day 01 │ 741581    │ 502672    │
+│ Day 02 │ 10485     │ 76480     │
+│ Day 03 │ 6784      │ 7410      │
+│ Day 04 │ 216       │ 675       │
+│ Day 05 │ GCDJSKALP │ RNQPCJGFD │
+│ Day 06 │ 1516      │ 1142      │
+│ Day 07 │ 8764833   │ 6543085   │
+│ Day 08 │ 1135      │ 578295    │
+│ Day 09 │           │           │
+│  ....  │ ......... │ ......... │
+│ Day 22 │           │           │
+│ Day 23 │           │           │
+│ Day 24 │           │           │
+│ Day 25 │           │           │
+└────────┴───────────┴───────────┘
 ```
 
-This will run all of the solutions in the repository.
-
-To run the solutions for only a specific day, you can pass the day number as an argument to the `npm run start` command. For example, to run the solutions for day 1, you can use the following command:
+To run the solutions for only a specific day, you can pass the day number as an argument to the `npm run start` command. For example, to run the solutions for day 5, you can use the following command:
 
 ```
-npm run start 1
+$ npm run start 5
+
+┌────────┬───────────┬───────────┐
+│ Days   │ Part 1    │ Part 2    │
+├────────┼───────────┼───────────┤
+│ Day 05 │ GCDJSKALP │ RNQPCJGFD │
+└────────┴───────────┴───────────┘
 ```
 
 To run the solutions for all days up until a specific day, you can use the --until flag followed by the day number. For example, to run the solutions for all days up until day 5, you can use the following command:
 
 ```
-npm run start -- --until 5
+$ npm run start -- --until 5
+
+┌────────┬───────────┬───────────┐
+│ Days   │ Part 1    │ Part 2    │
+├────────┼───────────┼───────────┤
+│ Day 01 │ 741581    │ 502672    │
+│ Day 02 │ 10485     │ 76480     │
+│ Day 03 │ 6784      │ 7410      │
+│ Day 04 │ 216       │ 675       │
+│ Day 05 │ GCDJSKALP │ RNQPCJGFD │
+└────────┴───────────┴───────────┘
 ```
 
 If the solution for a specific day is written in Haskell, you will need to use `runhaskell` to run it, like this:

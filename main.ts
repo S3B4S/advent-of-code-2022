@@ -1,6 +1,4 @@
 import { exit } from 'process';
-import { fromCompare, max, Ord } from 'fp-ts/lib/Ord'
-import { Ord as NumberOrd } from 'fp-ts/lib/number'
 import * as Day3 from './03_rucksack-reorganization'
 import * as Day4 from './04_camp-cleanup'
 import * as Day5 from './05_supply-stacks'
@@ -24,18 +22,9 @@ import * as Day22 from './day-22';
 import * as Day23 from './day-23';
 import * as Day24 from './day-24';
 import * as Day25 from './day-25';
-import { flow } from 'fp-ts/lib/function';
-import { size } from 'fp-ts/lib/string';
 import { map } from 'fp-ts/lib/Array';
 
-const printDay = (day: number, part1: any, part2: any, endsWithNewLine: boolean = true) => {
-  console.log("-- DAY " + String(day).padStart(2, '0') + " --")
-  console.log("Part 1 | " + part1)
-  console.log("Part 2 | " + part2)
-  if (endsWithNewLine) console.log()
-}
-
-const print = [
+const solutions = [
   [0, 0], // placeholders for now, these scipts don't exist (yet)
   [0, 0], // placeholders for now, these scipts don't exist (yet)
   [Day3.part1    /* 8252        */, Day3.part2   /* 2828           */],
@@ -63,17 +52,6 @@ const print = [
   [Day25.part1  /* X           */, Day25.part2  /* Y              */],
 ].map(map(String)) as [string, string][]
 
-// @fix?
-// const ordStringLength: Ord<string> = fromCompare((a, b) => NumberOrd.compare(a.length, b.length))
-// const largestString = (xs: string[]) => xs.reduce((a, b) => max(ordStringLength)(a, b))
-// console.log(largestString(["a", "bbbdas", "haa"]))
-
-// let columnWidths = print[0].map(_ => 0)
-const [columndWidthP1, columndWidthP2] = print
-.reduce((prev, curr) => {
-  return prev.map((x, i) => Math.max(x, curr[i].length))
-}, print[0].map(_ => 0))
-
 const c = {
   "top": "─",
   "top-T": "┬",
@@ -90,25 +68,48 @@ const c = {
   "bottom-left-corner": "└",
   "bottom-right-corner": "┘",
   "crossing": "┼",
+  "space": " ",
 }
 
-console.log(c['top-left-corner'] + c.top.repeat(5) + c['top-T'] + c.top.repeat(columndWidthP1 + 2) + c['top-T'] + c.top.repeat(columndWidthP2 + 2) + c['top-right-corner'])
-const header = [c.left, "Day", c['middle-vertical'], "Part 1".padEnd(columndWidthP1, " "), c['middle-vertical'], "Part 2".padEnd(columndWidthP2, " "), c.right].join(" ")
-console.log(header)
-console.log(c['left-T-middle'] + c['middle-horizontal'].repeat(5) + c.crossing + c['middle-horizontal'].repeat(columndWidthP1 + 2) + c.crossing + c['middle-horizontal'].repeat(columndWidthP2 + 2) + c['right-T-middle'])
-print.forEach(([p1, p2], i) => {
-  console.log(c.left  + (String(i + 1).padStart(2, "0")).padStart(4, " ") + " " + c['middle-vertical'] + " " + p1.padEnd(columndWidthP1, " ") + " " + c['middle-vertical'] + " " + p2.padEnd(columndWidthP2, " ") + " " + c.right)
-})
-console.log(c['bottom-left-corner'] + c.top.repeat(5) + c['bottom-T'] + c.top.repeat(columndWidthP1 + 2) + c['bottom-T'] + c.top.repeat(columndWidthP2 + 2) + c['bottom-right-corner'])
+const logTable = (table: string[][], spacePadding: number = 0) => {
+  const [header, ...data] = table
+  const columnWidths = table.reduce((prev, curr) => {
+      return prev.map((x, i) => Math.max(x, curr[i].length))
+    }, table[0].map(_ => 0))
+    .map(width => width + spacePadding * 2)
+
+  const toLog = [
+    c['top-left-corner'] + columnWidths.map(width => c.top.repeat(width)).join(c['top-T']) + c['top-right-corner'],
+    c.left + header.map((h, i) => c.space.repeat(spacePadding) + h.padEnd(columnWidths[i] - spacePadding * 2, c.space) + c.space.repeat(spacePadding)).join(c['middle-vertical']) + c.right,
+    c['left-T-middle'] + columnWidths.map(width => c['middle-horizontal'].repeat(width)).join(c.crossing) + c['right-T-middle'],
+    ...data.map(row => 
+      c.left + row.map((cell, i) => c.space.repeat(spacePadding) + cell.padEnd(columnWidths[i] - spacePadding * 2, c.space) + c.space.repeat(spacePadding)).join(c['middle-vertical']) + c.right
+    ),
+    c['bottom-left-corner'] + columnWidths.map(width => c.bottom.repeat(width)).join(c['bottom-T']) + c['bottom-right-corner'],
+  ]
+  
+  toLog.forEach(e => console.log(e))
+}
+
+const header = ["Days", "Part 1", "Part 2"]
+const printableRow = (day: number, row: string[]) => ["Day " + String(day).padStart(2, "0"), ...row]
 
 const commandArguments = process.argv.slice(2)
 
+// Print all days or up until given day with --until enabled
 if (!commandArguments[0] || commandArguments[0].includes('until')) {
-  // Print only days up until the day that was given as argument when running the script
-  const printUpUntilDay = Number(commandArguments[1]) || 25
-  print.slice(0, printUpUntilDay).forEach(([one, two], i) => printDay(i + 1, one, two, i !== print.length - 1))
+  const endDay = Number(commandArguments[1]) || 25
+  logTable([
+    header,
+    ...solutions.slice(0, endDay).map((d, i) => printableRow(i + 1, d))
+  ], 1)
+
   exit()
 }
 
-const [one, two] = print[Number(commandArguments[0]) - 1]
-printDay(Number(commandArguments[0]), one, two)
+const dayIndex = Number(commandArguments[0]) - 1
+const day = solutions[dayIndex]
+logTable([
+  header,
+  printableRow(dayIndex + 1, day),
+], 1)
