@@ -28,7 +28,7 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   if (visibleFromEast) return 1
 
   let visibleFromSouth = true
-  iterateInDirection.Sotuh(tree => {
+  iterateInDirection.South(tree => {
     if (tree >= heightTree) {
       visibleFromSouth = false
       return true
@@ -65,7 +65,7 @@ const calculateScenicScore = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   })
 
   let visibleFromBelow = 0
-  iterateInDirection.Sotuh(tree => {
+  iterateInDirection.South(tree => {
     visibleFromBelow += 1
     if (tree >= heightTree) return true
   })

@@ -109,7 +109,7 @@ export const directionIterator = <T>([row, column]: Coordinate, map: T[][]) => {
         if (fn(map[row][targetColumn])) return
       }
     },
-    Sotuh: (fn: CallbackFn) => {
+    South: (fn: CallbackFn) => {
       for (let targetRow = row + 1; targetRow < map.length; targetRow++) {
         if (fn(map[targetRow][column])) return
       }
