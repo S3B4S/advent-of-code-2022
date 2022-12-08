@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { dropWhile, map, takeWhile, transpose } from '../utilts';
+import { dropWhile, map, takeWhile, turn90DegClockWise } from '../utilts';
 import { flow, pipe } from 'fp-ts/function'
 import { not } from 'fp-ts/lib/Predicate'
 import { filter } from 'fp-ts/lib/Array'
@@ -64,7 +64,7 @@ const containersParsed = pipe(
 
 const containersPart1 = pipe(
   containersParsed,
-  transpose,
+  turn90DegClockWise,
   map(filter(not(isEmptyString)))
 )
 
