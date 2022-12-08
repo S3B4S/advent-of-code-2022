@@ -1,20 +1,12 @@
 import fs from 'fs';
 
-const input = fs.readFileSync(__dirname + '/../../day-08/input.txt', 'utf-8').trim().split('\n')
+const input = fs.readFileSync(__dirname + '/../../08_treetop-tree-house/input.txt', 'utf-8').trim().split('\n')
 
 type Row = number
 type Column = number
 type Coordinate = [Row, Column]
 
 type Map = number[][]
-
-// const input = `
-// 30373
-// 25512
-// 65332
-// 33549
-// 35390
-// `.trim().split('\n')
 
 const map = input.map(l => l.split('').map(Number))
 
@@ -29,9 +21,7 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
       break
     }
   }
-  if (visibleFromLeft) {
-    return 1
-  }
+  if (visibleFromLeft) return 1
 
 
   // Check right
@@ -42,9 +32,7 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
       break
     }
   }
-  if (visibleFromRight) {
-    return 1
-  }
+  if (visibleFromRight) return 1
   
 
   // Check above
@@ -55,9 +43,7 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
       break
     }
   }
-  if (visibleFromAbove) {
-    return 1
-  }
+  if (visibleFromAbove) return 1
 
   // Check below
   let visibleFromBelow = true
@@ -67,9 +53,7 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
       break
     }
   }
-  if (visibleFromBelow) {
-    return 1
-  }
+  if (visibleFromBelow) return 1
 
   return 0
 }
@@ -110,8 +94,10 @@ const calculateScenicScore = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   return visibleFromLeft * visibleFromRight * visibleFromAbove * visibleFromBelow
 }
 
-let countInterior = 0
+// We already counted the outer columns, so subtract 2 elements when counting the outer rows
+const treesOnEdge = map.length * 2 + (map[0].length - 2) * 2
 
+let countInterior = 0
 // Ignore the edges
 for (let row = 1; row < map.length - 1; row++) {
   for (let column = 1; column < map[row].length - 1; column++) {
@@ -126,6 +112,5 @@ for (let row = 0; row < map.length; row++) {
   }
 }
 
-// We already counted the outer columns, so subtract 2 elements when counting the outer rows
-export const part1 = countInterior + map.length * 2 + (map[0].length - 2) * 2
+export const part1 = countInterior + treesOnEdge
 export const part2 = maxScenicScore

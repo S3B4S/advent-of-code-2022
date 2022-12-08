@@ -3,7 +3,7 @@ import * as Day4 from './04_camp-cleanup'
 import * as Day5 from './05_supply-stacks'
 import * as Day6 from './06_tuning-trouble';
 import * as Day7 from './07_no-space-left-on-device';
-import * as Day8 from './day-08';
+import * as Day8 from './08_treetop-tree-house';
 import * as Day9 from './day-09';
 import * as Day10 from './day-10';
 import * as Day11 from './day-11';
@@ -31,29 +31,29 @@ const printDay = (day: number, part1: any, part2: any, endsWithNewLine: boolean 
 }
 
 const print: [number, any, any][] = [
-  [3, Day3.part1 /* 8252 */, Day3.part2 /* 2828 */],
-  [4, Day4.part1 /* 466 */, Day4.part2 /* 865 */],
-  [5, Day5.part1 /* FCVRLMVQP */, Day5.part2 /* RWLWGJGFD */],
-  [6, Day6.part1 /* 1876 */, Day6.part2 /* 2202 */],
-  [7, Day7.part1 /* 1315285 */, Day7.part2 /* 9847279 */],
-  [8, Day8.part1 /* X */, Day8.part2 /* Y */],
-  [9, Day9.part1 /* X */, Day9.part2 /* Y */],
-  [10, Day10.part1 /* X */, Day10.part2 /* Y */],
-  [11, Day11.part1 /* X */, Day11.part2 /* Y */],
-  [12, Day12.part1 /* X */, Day12.part2 /* Y */],
-  [13, Day13.part1 /* X */, Day13.part2 /* Y */],
-  [14, Day14.part1 /* X */, Day14.part2 /* Y */],
-  [15, Day15.part1 /* X */, Day15.part2 /* Y */],
-  [16, Day16.part1 /* X */, Day16.part2 /* Y */],
-  [17, Day17.part1 /* X */, Day17.part2 /* Y */],
-  [18, Day18.part1 /* X */, Day18.part2 /* Y */],
-  [19, Day19.part1 /* X */, Day19.part2 /* Y */],
-  [20, Day20.part1 /* X */, Day20.part2 /* Y */],
-  [21, Day21.part1 /* X */, Day21.part2 /* Y */],
-  [22, Day22.part1 /* X */, Day22.part2 /* Y */],
-  [23, Day23.part1 /* X */, Day23.part2 /* Y */],
-  [24, Day24.part1 /* X */, Day24.part2 /* Y */],
-  [25, Day25.part1 /* X */, Day25.part2 /* Y */],
+  [3, Day3.part1    /* 8252        */, Day3.part2   /* 2828           */],
+  [4, Day4.part1    /* 466         */, Day4.part2   /* 865            */],
+  [5, Day5.part1    /* FCVRLMVQP   */, Day5.part2   /* RWLWGJGFD      */],
+  [6, Day6.part1    /* 1876        */, Day6.part2   /* 2202           */],
+  [7, Day7.part1    /* 1315285     */, Day7.part2   /* 9847279        */],
+  [8, Day8.part1    /* 1715        */, Day8.part2   /* 374400         */],
+  [9, Day9.part1    /* X           */, Day9.part2   /* Y              */],
+  [10, Day10.part1  /* X           */, Day10.part2  /* Y              */],
+  [11, Day11.part1  /* X           */, Day11.part2  /* Y              */],
+  [12, Day12.part1  /* X           */, Day12.part2  /* Y              */],
+  [13, Day13.part1  /* X           */, Day13.part2  /* Y              */],
+  [14, Day14.part1  /* X           */, Day14.part2  /* Y              */],
+  [15, Day15.part1  /* X           */, Day15.part2  /* Y              */],
+  [16, Day16.part1  /* X           */, Day16.part2  /* Y              */],
+  [17, Day17.part1  /* X           */, Day17.part2  /* Y              */],
+  [18, Day18.part1  /* X           */, Day18.part2  /* Y              */],
+  [19, Day19.part1  /* X           */, Day19.part2  /* Y              */],
+  [20, Day20.part1  /* X           */, Day20.part2  /* Y              */],
+  [21, Day21.part1  /* X           */, Day21.part2  /* Y              */],
+  [22, Day22.part1  /* X           */, Day22.part2  /* Y              */],
+  [23, Day23.part1  /* X           */, Day23.part2  /* Y              */],
+  [24, Day24.part1  /* X           */, Day24.part2  /* Y              */],
+  [25, Day25.part1  /* X           */, Day25.part2  /* Y              */],
 ]
 
 // Print only days up until the day that was given as argument when running the script
