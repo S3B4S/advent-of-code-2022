@@ -1,3 +1,4 @@
+import { exit } from 'process';
 import * as Day3 from './03_rucksack-reorganization'
 import * as Day4 from './04_camp-cleanup'
 import * as Day5 from './05_supply-stacks'
@@ -31,6 +32,8 @@ const printDay = (day: number, part1: any, part2: any, endsWithNewLine: boolean 
 }
 
 const print: [number, any, any][] = [
+  [1, 0, 0], // placeholders for now, these scipts don't exist (yet)
+  [2, 0, 0], // placeholders for now, these scipts don't exist (yet)
   [3, Day3.part1    /* 8252        */, Day3.part2   /* 2828           */],
   [4, Day4.part1    /* 466         */, Day4.part2   /* 865            */],
   [5, Day5.part1    /* FCVRLMVQP   */, Day5.part2   /* RWLWGJGFD      */],
@@ -56,7 +59,14 @@ const print: [number, any, any][] = [
   [25, Day25.part1  /* X           */, Day25.part2  /* Y              */],
 ]
 
-// Print only days up until the day that was given as argument when running the script
-const printUpUntilDay = Number(process.argv.slice(2)) ?? 25
+const commandArguments = process.argv.slice(2)
 
-print.slice(0, printUpUntilDay - 2).forEach(([d, one, two], i) => printDay(d, one, two, i !== print.length - 1))
+if (!commandArguments[0] || commandArguments[0].includes('until')) {
+  // Print only days up until the day that was given as argument when running the script
+  const printUpUntilDay = Number(commandArguments[1]) || 25
+  print.slice(0, printUpUntilDay).forEach(([d, one, two], i) => printDay(d, one, two, i !== print.length - 1))
+  exit()
+}
+
+const [d, one, two] = print[Number(commandArguments[0]) - 1]
+printDay(d, one, two)
