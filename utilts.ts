@@ -81,3 +81,43 @@ export const dropWhile = <T>(predicate: (e: T) => boolean, list: T[]) => {
 export const map = <A, B>(fn: (a: A) => B) => (list: A[]) => list.map(fn)
 export const filter = <T>(p: (a: T) => boolean) => (list: T[]) => list.filter(p)
 export const reduce = <A, T>(fn: (a: A, el: T) => A) => (initValue: A) => (list: T[]) => list.reduce(fn, initValue)
+
+export type Row = number
+export type Column = number
+export type Coordinate = [Row, Column]
+export enum Direction { North, East, South, West }
+
+/**
+ * Applies the provided function to the elements in the specified direction in a two-dimensional array, starting from the provided coordinate.
+ * The function is applied to each element in the specified direction until it returns `true` or all elements have been visited.
+ *
+ * @param coordinate The starting coordinate
+ * @param map The two-dimensional array to iterate over
+ * @param direction The direction in which to apply the function
+ * @param fn The function to apply to each element
+ */
+export const directionIterator = <T>([row, column]: Coordinate, map: T[][]) => {
+  type CallbackFn = (t: T) => boolean
+  return {
+    North: (fn: CallbackFn) => {
+      for (let targetRow = row - 1; targetRow >= 0; targetRow--) {
+        if (fn(map[targetRow][column])) return
+      }
+    },
+    East: (fn: CallbackFn) => {
+      for (let targetColumn = column + 1; targetColumn < map[0].length; targetColumn++) {
+        if (fn(map[row][targetColumn])) return
+      }
+    },
+    Sotuh: (fn: CallbackFn) => {
+      for (let targetRow = row + 1; targetRow < map.length; targetRow++) {
+        if (fn(map[targetRow][column])) return
+      }
+    },
+    West: (fn: CallbackFn) => {
+      for (let targetColumn = column - 1; targetColumn >= 0; targetColumn--) {
+        if (fn(map[row][targetColumn])) return
+      }
+    },
+  }
+}
