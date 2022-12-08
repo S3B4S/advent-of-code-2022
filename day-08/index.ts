@@ -20,21 +20,16 @@ const map = input.map(l => l.split('').map(Number))
 
 const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   const heightTree = map[treeRow][treeColumn]
-  // console.log('----------')
-  // console.log(heightTree)
 
   // Check left
   let visibleFromLeft = true
   for (let targetColumn = treeColumn - 1; targetColumn >= 0; targetColumn--) {
     if (map[treeRow][targetColumn] >= heightTree) {
-      // console.log(map[treeRow][targetColumn])
-      // console.log('Bigger on left')
       visibleFromLeft = false
       break
     }
   }
   if (visibleFromLeft) {
-    // console.log("Visible from: left")
     return 1
   }
 
@@ -43,14 +38,11 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   let visibleFromRight = true
   for (let targetColumn = treeColumn + 1; targetColumn < map[0].length; targetColumn++) {
     if (map[treeRow][targetColumn] >= heightTree) {
-      // console.log(map[treeRow][targetColumn])
-      // console.log('Bigger on right')
       visibleFromRight = false
       break
     }
   }
   if (visibleFromRight) {
-    // console.log("Visible from: right")
     return 1
   }
   
@@ -59,14 +51,11 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   let visibleFromAbove = true
   for (let targetRow = treeRow - 1; targetRow >= 0; targetRow--) {
     if (map[targetRow][treeColumn] >= heightTree) {
-      // console.log(map[targetRow][treeColumn])
-      // console.log('Bigger on above')
       visibleFromAbove = false
       break
     }
   }
   if (visibleFromAbove) {
-    // console.log("Visible from: above")
     return 1
   }
 
@@ -74,22 +63,52 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   let visibleFromBelow = true
   for (let targetRow = treeRow + 1; targetRow < map.length; targetRow++) {
     if (map[targetRow][treeColumn] >= heightTree) {
-      // console.log(map[targetRow][treeColumn])
-      // console.log('Bigger on below')
       visibleFromBelow = false
       break
     }
   }
   if (visibleFromBelow) {
-    // console.log("Visible from: below")
     return 1
   }
 
-  // console.log('Not visible from any side')
   return 0
 }
 
-/// brute force, O(n^2)
+const calculateScenicScore = ([treeRow, treeColumn]: Coordinate, map: Map) => {
+  const heightTree = map[treeRow][treeColumn]
+  
+  // Check left
+  let visibleFromLeft = 0
+  for (let targetColumn = treeColumn - 1; targetColumn >= 0; targetColumn--) {
+    visibleFromLeft += 1
+    if (map[treeRow][targetColumn] >= heightTree) break 
+  }
+
+
+  // Check right
+  let visibleFromRight = 0
+  for (let targetColumn = treeColumn + 1; targetColumn < map[0].length; targetColumn++) {
+    visibleFromRight += 1
+    if (map[treeRow][targetColumn] >= heightTree) break
+  }
+
+
+  // Check above
+  let visibleFromAbove = 0
+  for (let targetRow = treeRow - 1; targetRow >= 0; targetRow--) {
+    visibleFromAbove += 1
+    if (map[targetRow][treeColumn] >= heightTree) break
+  }
+
+  // Check below
+  let visibleFromBelow = 0
+  for (let targetRow = treeRow + 1; targetRow < map.length; targetRow++) {
+    visibleFromBelow += 1
+    if (map[targetRow][treeColumn] >= heightTree) break
+  }
+
+  return visibleFromLeft * visibleFromRight * visibleFromAbove * visibleFromBelow
+}
 
 let countInterior = 0
 
@@ -100,8 +119,13 @@ for (let row = 1; row < map.length - 1; row++) {
   }
 }
 
-console.log(countInterior)
+let maxScenicScore = 0
+for (let row = 0; row < map.length; row++) {
+  for (let column = 0; column < map[row].length; column++) {
+    maxScenicScore = Math.max(maxScenicScore, calculateScenicScore([row, column], map))
+  }
+}
 
 // We already counted the outer columns, so subtract 2 elements when counting the outer rows
 export const part1 = countInterior + map.length * 2 + (map[0].length - 2) * 2
-export const part2 = ''
+export const part2 = maxScenicScore
