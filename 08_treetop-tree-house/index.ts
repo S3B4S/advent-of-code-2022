@@ -1,95 +1,121 @@
-import fs from 'fs';
-
-const input = fs.readFileSync(__dirname + '/../../08_treetop-tree-house/input.txt', 'utf-8').trim().split('\n')
+import fs, { Dir } from 'fs';
 
 type Row = number
 type Column = number
 type Coordinate = [Row, Column]
+enum Direction { North, East, South, West }
 
+/**
+ * Applies the provided function to the elements in the specified direction in a two-dimensional array, starting from the provided coordinate.
+ * The function is applied to each element in the specified direction until it returns `true` or all elements have been visited.
+ *
+ * @param coordinate The starting coordinate
+ * @param map The two-dimensional array to iterate over
+ * @param direction The direction in which to apply the function
+ * @param fn The function to apply to each element
+ */
+const directionIterator = <T>([row, column]: Coordinate, map: T[][]) => (direction: Direction, fn: (t: T) => boolean) => {
+  switch (direction) {
+    case Direction.North:
+      for (let targetRow = row - 1; targetRow >= 0; targetRow--) {
+        if (fn(map[targetRow][column])) return
+      }
+      return
+    
+    case Direction.East:
+      for (let targetColumn = column + 1; targetColumn < map[0].length; targetColumn++) {
+        if (fn(map[row][targetColumn])) return
+      }
+      return
+
+    case Direction.South:
+      for (let targetRow = row + 1; targetRow < map.length; targetRow++) {
+        if (fn(map[targetRow][column])) return
+      }
+      return
+
+    case Direction.West:
+      for (let targetColumn = column - 1; targetColumn >= 0; targetColumn--) {
+        if (fn(map[row][targetColumn])) return
+      }
+      return
+  }
+}
+
+const input = fs.readFileSync(__dirname + '/../../08_treetop-tree-house/input.txt', 'utf-8').trim().split('\n')
 type Map = number[][]
-
 const map = input.map(l => l.split('').map(Number))
 
 const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   const heightTree = map[treeRow][treeColumn]
+  const iterateInDirection = directionIterator([treeRow, treeColumn], map)
 
-  // Check left
-  let visibleFromLeft = true
-  for (let targetColumn = treeColumn - 1; targetColumn >= 0; targetColumn--) {
-    if (map[treeRow][targetColumn] >= heightTree) {
-      visibleFromLeft = false
-      break
+  let visibleFromNorth = true
+  iterateInDirection(Direction.North, tree => {
+    if (tree >= heightTree) {
+      visibleFromNorth = false
+      return true
     }
-  }
-  if (visibleFromLeft) return 1
+  })
+  if (visibleFromNorth) return 1
 
-
-  // Check right
-  let visibleFromRight = true
-  for (let targetColumn = treeColumn + 1; targetColumn < map[0].length; targetColumn++) {
-    if (map[treeRow][targetColumn] >= heightTree) {
-      visibleFromRight = false
-      break
+  let visibleFromEast = true
+  iterateInDirection(Direction.East, tree => {
+    if (tree >= heightTree) {
+      visibleFromEast = false
+      return true
     }
-  }
-  if (visibleFromRight) return 1
+  })
+  if (visibleFromEast) return 1
+
+  let visibleFromSouth = true
+  iterateInDirection(Direction.South, tree => {
+    if (tree >= heightTree) {
+      visibleFromSouth = false
+      return true
+    }
+  })
+  if (visibleFromSouth) return 1
   
-
-  // Check above
-  let visibleFromAbove = true
-  for (let targetRow = treeRow - 1; targetRow >= 0; targetRow--) {
-    if (map[targetRow][treeColumn] >= heightTree) {
-      visibleFromAbove = false
-      break
+  let visibleFromWest = true
+  iterateInDirection(Direction.West, tree => {
+    if (tree >= heightTree) {
+      visibleFromWest = false
+      return true
     }
-  }
-  if (visibleFromAbove) return 1
-
-  // Check below
-  let visibleFromBelow = true
-  for (let targetRow = treeRow + 1; targetRow < map.length; targetRow++) {
-    if (map[targetRow][treeColumn] >= heightTree) {
-      visibleFromBelow = false
-      break
-    }
-  }
-  if (visibleFromBelow) return 1
+  })
+  if (visibleFromWest) return 1
 
   return 0
 }
 
 const calculateScenicScore = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   const heightTree = map[treeRow][treeColumn]
+  const iterateInDirection = directionIterator([treeRow, treeColumn], map)
   
-  // Check left
-  let visibleFromLeft = 0
-  for (let targetColumn = treeColumn - 1; targetColumn >= 0; targetColumn--) {
-    visibleFromLeft += 1
-    if (map[treeRow][targetColumn] >= heightTree) break 
-  }
-
-
-  // Check right
-  let visibleFromRight = 0
-  for (let targetColumn = treeColumn + 1; targetColumn < map[0].length; targetColumn++) {
-    visibleFromRight += 1
-    if (map[treeRow][targetColumn] >= heightTree) break
-  }
-
-
-  // Check above
   let visibleFromAbove = 0
-  for (let targetRow = treeRow - 1; targetRow >= 0; targetRow--) {
+  iterateInDirection(Direction.North, tree => {
     visibleFromAbove += 1
-    if (map[targetRow][treeColumn] >= heightTree) break
-  }
+    if (tree >= heightTree) return true
+  })
 
-  // Check below
+  let visibleFromRight = 0
+  iterateInDirection(Direction.East, tree => {
+    visibleFromRight += 1
+    if (tree >= heightTree) return true
+  })
+
   let visibleFromBelow = 0
-  for (let targetRow = treeRow + 1; targetRow < map.length; targetRow++) {
+  iterateInDirection(Direction.South, tree => {
     visibleFromBelow += 1
-    if (map[targetRow][treeColumn] >= heightTree) break
-  }
+    if (tree >= heightTree) return true
+  })
+
+  let visibleFromLeft = 0
+  iterateInDirection(Direction.West, tree => {
+    visibleFromLeft += 1
+    if (tree >= heightTree) return true
+  })
 
   return visibleFromLeft * visibleFromRight * visibleFromAbove * visibleFromBelow
 }
