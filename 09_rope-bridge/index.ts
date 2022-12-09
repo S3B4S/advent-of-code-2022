@@ -74,13 +74,13 @@ const moveCloserTo = (trailingTail: Coordinate, goal: Coordinate) => {
   return newLocation
 }
 
-const input = fs.readFileSync(__dirname + '/../../09_rope-bridge/input.txt', 'utf-8')
+const input: [Direction, number][] = fs.readFileSync(__dirname + '/../../09_rope-bridge/input.txt', 'utf-8')
   .trim()
   .split('\n')
   .map(line => {
     const [direction, amount] = line.trim().split(' ')
-    return [direction, Number(amount)]
-  }) as [Direction, number][]
+    return [direction as Direction, Number(amount)]
+  })
 
 /**
  * Simulates the movement of a rope with 2 knots in a grid.
@@ -123,7 +123,7 @@ const part2Fn = (input: [Direction, number][], amountKnots: number) => {
   let visited = new Set<string>()
 
   // Head is at index 0
-  const knots = Array.from({ length: amountKnots }).map(() => [0, 0]) as Coordinate[]
+  const knots: Coordinate[] = Array.from({ length: amountKnots }).map(() => [0, 0])
 
   for (let [direction, amountSteps] of input) {
     for (let _ of range(0, amountSteps)) {
