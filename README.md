@@ -10,10 +10,10 @@ In addition, the `/scripts` folder contains utility scripts that automate some t
 
 ## Usage
 
-To use the solutions in this repository, clone the repository and run the `npm run start` script located in the root directory. You can do this by running the following command from the root directory, this will run all of the solutions in the repository.
+To use the solutions in this repository, clone the repository and run the `npm start` script located in the root directory. You can do this by running the following command from the root directory, this will run all of the solutions in the repository.
 
 ```
-$ npm run start
+$ npm start
 
 ┌────────┬───────────┬───────────┐
 │ Days   │ Part 1    │ Part 2    │
@@ -35,10 +35,10 @@ $ npm run start
 └────────┴───────────┴───────────┘
 ```
 
-To run the solutions for only a specific day, you can pass the day number as an argument to the `npm run start` command. For example, to run the solutions for day 5, you can use the following command:
+To run the solutions for only a specific day, you can pass the day number as an argument to the `npm start` command. For example, to run the solutions for day 5, you can use the following command:
 
 ```
-$ npm run start 5
+$ npm start 5
 
 ┌────────┬───────────┬───────────┐
 │ Days   │ Part 1    │ Part 2    │
@@ -50,7 +50,7 @@ $ npm run start 5
 To run the solutions for all days up until a specific day, you can use the --until flag followed by the day number. For example, to run the solutions for all days up until day 5, you can use the following command:
 
 ```
-$ npm run start -- --until 5
+$ npm start -- --until 5
 
 ┌────────┬───────────┬───────────┐
 │ Days   │ Part 1    │ Part 2    │

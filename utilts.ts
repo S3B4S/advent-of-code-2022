@@ -131,3 +131,5 @@ export const zip = <A, B>(xs: A[], ys: B[]) => {
 
 export const subtractLists = (xs: number[], ys: number[]) => zip(xs, ys).map(([x, y]) => x - y)
 export const addLists = (xs: number[], ys: number[]) => zip(xs, ys).map(([x, y]) => x + y)
+
+export const range = (start: number, end: number) => Array.from({ length: Math.abs(end - start) }, (_, i) => start < end ? i + start : Math.abs(i - start))

@@ -1,8 +1,16 @@
-import fs, { Dir } from 'fs'
-import { addLists, Coordinate } from '../utilts'
+import fs from 'fs'
+import { addLists, Coordinate, range } from '../utilts'
 
 type Direction = 'R' | 'U' | 'L' | 'D'
 
+/**
+ * Prints a map of the coordinates visited by a set of knots.
+ *
+ * @param dimensions - The dimensions of the map as a tuple of `number` values, representing the number of rows and columns.
+ * @param start - The starting coordinates of the map as a `Coordinate` tuple.
+ * @param set - A `Set` of `string` coordinates visited by the knots.
+ * @param knots - The current locations of the knots as an array of `Coordinate` tuples.
+ */
 const printMap = ([amountRows, amountColumns]: [number, number], start: Coordinate, set: Set<string>, knots: Coordinate[]) => {
   const printable = Array.from({ length: amountRows }).map(() =>
     Array.from({ length: amountColumns }).fill('.')
@@ -19,20 +27,12 @@ const printMap = ([amountRows, amountColumns]: [number, number], start: Coordina
     printable[knot[0] + start[0]][knot[1] + start[1]] = symbol === "0" ? "H" : symbol
   })
 
-  const p2 = printable.reverse().map(line => line.join(' '))
+  const p2 = printable.reverse().map(line => line.join(''))
   process.stdout.write(p2.join('\n'))
   process.stdout.write('\n')
 }
 
-const input = fs.readFileSync(__dirname + '/../../day-09/input.txt', 'utf-8')
-  .trim()
-    .split('\n')
-    .map(line => {
-      const [direction, amount] = line.trim().split(' ')
-      return [direction, Number(amount)]
-    }) as [Direction, number][]
-
-const updateCoordinate = ([row, column]: Coordinate, direction: Direction): Coordinate => {
+const moveTowards = ([row, column]: Coordinate, direction: Direction): Coordinate => {
   switch (direction) {
     case 'D':
       return [row - 1, column]
@@ -45,37 +45,11 @@ const updateCoordinate = ([row, column]: Coordinate, direction: Direction): Coor
   }
 }
 
-const range = (start: number, end: number) => Array.from({ length: Math.abs(end - start) }, (_, i) => start < end ? i + start : Math.abs(i - start))
 const adjacentTo = (coordiante: Coordinate, other: Coordinate) => {
   return Math.abs(coordiante[0] - other[0]) <= 1 && Math.abs(coordiante[1] - other[1]) <= 1
 }
 
-const part1Fn = (input: [Direction, number][]) => {
-  let tail: Coordinate = [0, 0]
-  let head: Coordinate = [0, 0]
-  let visited = new Set<string>()
-  
-  visited.add("0,0")
-  
-  for (let [direction, amountSteps] of input) {
-    for (let _ of range(0, amountSteps)) {
-      const futureHead = updateCoordinate(head, direction)
-      
-      if (!adjacentTo(tail, futureHead)) {
-        visited.add(head.toString())
-        tail = head
-        head = futureHead
-        continue
-      }
-  
-      head = futureHead
-    }
-  }
-  
-  console.log(visited.size)
-}
-
-const moveCloser = (trailingTail: Coordinate, goal: Coordinate) => {
+const moveCloserTo = (trailingTail: Coordinate, goal: Coordinate) => {
   let newLocation: Coordinate
   // If on same row
   if (trailingTail[0] === goal[0]) {
@@ -100,13 +74,56 @@ const moveCloser = (trailingTail: Coordinate, goal: Coordinate) => {
   return newLocation
 }
 
+const input = fs.readFileSync(__dirname + '/../../day-09/input.txt', 'utf-8')
+  .trim()
+    .split('\n')
+    .map(line => {
+      const [direction, amount] = line.trim().split(' ')
+      return [direction, Number(amount)]
+    }) as [Direction, number][]
 
-const part2Fn = (input: [Direction, number][]) => {
+/**
+ * Simulates the movement of a rope with 2 knots in a grid.
+ *
+ * @param input - A list of `Direction` values and distances, representing the movement of the knot.
+ * @returns The number of unique coordinates visited by the last knot.
+ */
+const part1Fn = (input: [Direction, number][]) => {
+  let tail: Coordinate = [0, 0]
+  let head: Coordinate = [0, 0]
+  let visited = new Set<string>()
+  
+  visited.add("0,0")
+  
+  for (let [direction, amountSteps] of input) {
+    for (let _ of range(0, amountSteps)) {
+      const futureHead = moveTowards(head, direction)
+      
+      if (!adjacentTo(tail, futureHead)) {
+        visited.add(head.toString())
+        tail = head
+        head = futureHead
+        continue
+      }
+  
+      head = futureHead
+    }
+  }
+  return visited.size
+}
+
+/**
+ * Simulates the movement of a number of knots in a grid.
+ *
+ * @param input - A list of `Direction` values and distances, representing the movement of the knots.
+ * @param amountKnots - The number of knots to simulate.
+ * @returns The number of unique coordinates visited by the last knot.
+ */
+const part2Fn = (input: [Direction, number][], amountKnots: number) => {
   let visited = new Set<string>()
 
-  const k = 10
-  // head is at 0, tail is at last
-  const knots = Array.from({ length: k }).map((_, i) => [0, 0]) as Coordinate[]
+  // Head is at index 0
+  const knots = Array.from({ length: amountKnots }).map(() => [0, 0]) as Coordinate[]
 
   for (let [direction, amountSteps] of input) {
     for (let _ of range(0, amountSteps)) {
@@ -115,7 +132,7 @@ const part2Fn = (input: [Direction, number][]) => {
         const head = knots[i]
 
         if (i === 0) {
-          const futureHead = updateCoordinate(knots[0], direction)
+          const futureHead = moveTowards(knots[0], direction)
           
           // Tail is not going to move
           if (adjacentTo(tail, futureHead)) {
@@ -132,12 +149,10 @@ const part2Fn = (input: [Direction, number][]) => {
 
         // If tail of next subsequent pair of knot is adjacent to the (already) moved head,
         // go to next iteration
-        if (adjacentTo(knots[i + 1], knots[i])) {
+        if (adjacentTo(knots[i + 1], knots[i]))
           break
-        }
 
-        const newLocation = moveCloser(tail, head)
-        
+        const newLocation = moveCloserTo(tail, head)
         knots[i + 1] = newLocation
         visited.add(knots[knots.length - 1].toString())
       }
@@ -147,7 +162,5 @@ const part2Fn = (input: [Direction, number][]) => {
   return visited.size
 }
 
-console.log(part2Fn(input))
-
-export const part1 = ''
-export const part2 = ''
+export const part1 = part1Fn(input)
+export const part2 = part2Fn(input, 10)
