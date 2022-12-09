@@ -1,9 +1,8 @@
-import fs from 'fs';
-import { dropWhile, map, takeWhile, turn90DegClockWise } from '../utilts';
-import { flow, pipe } from 'fp-ts/function'
-import { not } from 'fp-ts/lib/Predicate'
-import { filter } from 'fp-ts/lib/Array'
-import { isEmpty as isEmptyString } from 'fp-ts/lib/string'
+import { dropWhile, map, takeWhile, turn90DegClockWise } from '../utilts.ts'
+import { flow, pipe } from 'npm:fp-ts/lib/function.js'
+import { not } from 'npm:fp-ts/lib/Predicate.js'
+import { filter } from 'npm:fp-ts/lib/Array.js'
+import { isEmpty as isEmptyString } from 'npm:fp-ts/lib/string.js'
 
 type Containers = string[][]
 
@@ -35,7 +34,7 @@ const unpackContainer = (container: string) => {
 /** MUTATING! */
 const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [number, number, number]) => {
   for (let i = 0; i < amount; i++) {
-    const el = containers[from].pop()
+    const el = containers[from].pop()!
     containers[to].push(el)
   }
 }
@@ -44,13 +43,13 @@ const moveContainersOneByOne = (containers: Containers, [amount, from, to]: [num
 const moveContainersGrouped = (containers: Containers, [amount, from, to]: [number, number, number]) => {
   const toMove = []
   for (let i = 0; i < amount; i++) {
-    const el = containers[from].pop()
+    const el = containers[from].pop()!
     toMove.push(el)
   }
   containers[to] = containers[to].concat(toMove.reverse())
 }
 
-const input = fs.readFileSync(__dirname + '/../../05_supply-stacks/input.txt', 'utf-8').trimEnd().split('\n')
+const input = Deno.readTextFileSync('./05_supply-stacks/input.txt').trimEnd().split('\n')
 const instructions = dropWhile(l => !instructionLine(l), input).map(parseInstruction)
 
 const containersParsed = pipe(
