@@ -1,5 +1,4 @@
-import fs from 'fs';
-import { sum } from '../utilts';
+import { sum } from '../utilts.ts'
 
 // @FIX
 // type Directory = Record<string, {
@@ -22,7 +21,7 @@ const parseLine = (line: string): [Command, string?, number?] => {
   return [Command.FileSize, split[1], Number(split[0])]
 }
 
-const input = fs.readFileSync(__dirname + '/../../07_no-space-left-on-device/input.txt', 'utf-8').trim().split('\n')
+const input = Deno.readTextFileSync('./07_no-space-left-on-device/input.txt').trim().split('\n')
 
 /// Construct filesystem
 const fileSystem: Directory = {}
@@ -47,14 +46,14 @@ input.forEach(line => {
       // Move
       // It seems the location is always found through ls before cding it
       // So we can assume the location already exists
-      currentLocation = currentLocation[argument]
+      currentLocation = currentLocation[argument!]
       return
     
     case Command.List:
       return
     
     case Command.Dir:
-      currentLocation[argument] = {
+      currentLocation[argument!] = {
         name: argument,
         '..': currentLocation,
         files: {},
@@ -62,7 +61,7 @@ input.forEach(line => {
       return
     
     case Command.FileSize:
-      currentLocation['files'][argument] = fileSize
+      currentLocation['files'][argument!] = fileSize
   }
 })
 

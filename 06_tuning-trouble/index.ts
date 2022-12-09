@@ -1,5 +1,4 @@
-import fs from 'fs';
-import { sliding } from '../utilts';
+import { sliding } from '../utilts.ts'
 
 const uniqueCharsOnly = (input: string) => {
   const found: Record<string, boolean> = {}
@@ -13,7 +12,7 @@ const uniqueCharsOnly = (input: string) => {
   return true
 }
 
-const input = fs.readFileSync(__dirname + '/../../06_tuning-trouble/input.txt', 'utf-8').trim()
+const input = Deno.readTextFileSync('./06_tuning-trouble/input.txt').trim()
 
 const n1 = 4
 export const part1 = sliding(n1)(input).findIndex(uniqueCharsOnly) + n1
