@@ -1,5 +1,5 @@
-import fs from 'fs'
-import { addLists, Coordinate, range } from '../utilts'
+import { addLists, Coordinate, range } from '../utilts.ts'
+import { writeAllSync } from "https://deno.land/std@0.167.0/streams/write_all.ts"
 
 type Direction = 'R' | 'U' | 'L' | 'D'
 
@@ -27,9 +27,13 @@ const printMap = ([amountRows, amountColumns]: [number, number], start: Coordina
     printable[knot[0] + start[0]][knot[1] + start[1]] = symbol === "0" ? "H" : symbol
   })
 
-  const p2 = printable.reverse().map(line => line.join(''))
-  process.stdout.write(p2.join('\n'))
-  process.stdout.write('\n')
+  const p2 = printable.reverse().map(line => line.join('')).join('\n')
+  const contentBytes = new TextEncoder().encode(p2);
+  writeAllSync(Deno.stdout, contentBytes)
+  const newLine = new TextEncoder().encode('\n');
+  writeAllSync(Deno.stdout, newLine)
+  // process.stdout.write(p2.join('\n'))
+  // process.stdout.write('\n')
 }
 
 const moveTowards = ([row, column]: Coordinate, direction: Direction): Coordinate => {
@@ -71,10 +75,10 @@ const moveCloserTo = (trailingTail: Coordinate, goal: Coordinate) => {
     newLocation = addLists(trailingTail, [1, -1]) as Coordinate
   }
 
-  return newLocation
+  return newLocation!
 }
 
-const input: [Direction, number][] = fs.readFileSync(__dirname + '/../../09_rope-bridge/input.txt', 'utf-8')
+const input: [Direction, number][] = Deno.readTextFileSync('./09_rope-bridge/input.txt')
   .trim()
   .split('\n')
   .map(line => {

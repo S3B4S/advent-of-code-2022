@@ -1,7 +1,8 @@
-import fs from 'fs';
-import { Coordinate, directionIterator } from '../utilts';
+// import fs from 'fs';
+import { Coordinate, directionIterator } from '../utilts.ts'
 
-const input = fs.readFileSync(__dirname + '/../../08_treetop-tree-house/input.txt', 'utf-8').trim().split('\n')
+const input = Deno.readTextFileSync('./08_treetop-tree-house/input.txt').trim().split('\n')
+
 type Map = number[][]
 const map = input.map(l => l.split('').map(Number))
 
@@ -11,37 +12,29 @@ const checkVisibility = ([treeRow, treeColumn]: Coordinate, map: Map) => {
 
   let visibleFromNorth = true
   iterateInDirection.North(tree => {
-    if (tree >= heightTree) {
-      visibleFromNorth = false
-      return true
-    }
+    if (tree >= heightTree) visibleFromNorth = false
+    return tree >= heightTree
   })
   if (visibleFromNorth) return 1
 
   let visibleFromEast = true
   iterateInDirection.East(tree => {
-    if (tree >= heightTree) {
-      visibleFromEast = false
-      return true
-    }
+    if (tree >= heightTree) visibleFromEast = false
+    return tree >= heightTree
   })
   if (visibleFromEast) return 1
 
   let visibleFromSouth = true
   iterateInDirection.South(tree => {
-    if (tree >= heightTree) {
-      visibleFromSouth = false
-      return true
-    }
+    if (tree >= heightTree) visibleFromSouth = false
+    return tree >= heightTree
   })
   if (visibleFromSouth) return 1
   
   let visibleFromWest = true
   iterateInDirection.West(tree => {
-    if (tree >= heightTree) {
-      visibleFromWest = false
-      return true
-    }
+    if (tree >= heightTree) visibleFromWest = false
+    return tree >= heightTree
   })
   if (visibleFromWest) return 1
 
@@ -55,25 +48,25 @@ const calculateScenicScore = ([treeRow, treeColumn]: Coordinate, map: Map) => {
   let visibleFromAbove = 0
   iterateInDirection.North(tree => {
     visibleFromAbove += 1
-    if (tree >= heightTree) return true
+    return tree >= heightTree
   })
 
   let visibleFromRight = 0
   iterateInDirection.East(tree => {
     visibleFromRight += 1
-    if (tree >= heightTree) return true
+    return tree >= heightTree
   })
 
   let visibleFromBelow = 0
   iterateInDirection.South(tree => {
     visibleFromBelow += 1
-    if (tree >= heightTree) return true
+    return tree >= heightTree
   })
 
   let visibleFromLeft = 0
   iterateInDirection.West(tree => {
     visibleFromLeft += 1
-    if (tree >= heightTree) return true
+    return tree >= heightTree
   })
 
   return visibleFromLeft * visibleFromRight * visibleFromAbove * visibleFromBelow
@@ -99,3 +92,6 @@ for (let row = 0; row < map.length; row++) {
 
 export const part1 = countInterior + treesOnEdge
 export const part2 = maxScenicScore
+
+console.log(part1)
+console.log(part2)
