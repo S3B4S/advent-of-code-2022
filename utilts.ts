@@ -48,7 +48,7 @@ export const countBy = <T>(predicate: (t: T) => boolean, list: T[]) => {
 }
 
 export const turn90DegClockWise = <T>(matrix: T[][]) => {
-  const res = Array.from({ length: matrix[0].length }).map(() => [])
+  const res = Array.from({ length: matrix[0].length }).map(() => [] as T[])
   
   for (let rowIndex = matrix.length - 1; rowIndex >= 0; rowIndex--) {
     const row = matrix[rowIndex]

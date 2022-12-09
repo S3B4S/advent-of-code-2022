@@ -1,5 +1,4 @@
-import fs from 'fs'
-import { chunksOfN, compose, sum } from '../utilts'
+import { chunksOfN, compose, sum } from '../utilts.ts'
 
 type Rucksack = [string, string]
 
@@ -30,7 +29,7 @@ const findDuplicateInRucksack = (rucksack: Rucksack): string => {
  * @returns character
  */
 const charInAll = (rucksacks: string[]): string => {
-  const found = rucksacks.slice(0, rucksacks.length - 2).map(strToObject)
+  const found = rucksacks.slice(0, rucksacks.length - 1).map(strToObject)
   return rucksacks[rucksacks.length - 1].split('').find(c => found.every(r => r[c]))!
 }
 
@@ -44,23 +43,25 @@ const parseInputLine = (line: string): Rucksack => {
  */
 const chunks3 = chunksOfN(3);
 
-// @TODO Fix path
-const input = fs.readFileSync(__dirname + '/../../03_rucksack-reorganization/input.txt', 'utf-8')
-const parsed = input
-  .trim()
-  .split('\n')
+export const solvePart1 = (input: string) => {
+  const lines = input.trim().split('\n')
 
-export const part1 = parsed
-  .map(compose(
-    priorityChar,
-    findDuplicateInRucksack,
-    parseInputLine,
-  ))
-  .reduce(sum)
+  return lines
+    .map(compose(
+      priorityChar,
+      findDuplicateInRucksack,
+      parseInputLine,
+    ))
+    .reduce(sum)
+}
 
-export const part2 = chunks3(parsed)
-  .map(compose(
-    priorityChar,
-    charInAll,
-  ))
-  .reduce(sum)
+export const solvePart2 = (input: string) => {
+  const lines = input.trim().split('\n')
+
+  return chunks3(lines)
+    .map(compose(
+      priorityChar,
+      charInAll,
+    ))
+    .reduce((sum))
+}
