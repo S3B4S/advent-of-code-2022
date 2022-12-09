@@ -5,7 +5,7 @@ import * as Day5 from './05_supply-stacks'
 import * as Day6 from './06_tuning-trouble';
 import * as Day7 from './07_no-space-left-on-device';
 import * as Day8 from './08_treetop-tree-house';
-import * as Day9 from './day-09';
+import * as Day9 from './09_rope-bridge';
 import * as Day10 from './day-10';
 import * as Day11 from './day-11';
 import * as Day12 from './day-12';
