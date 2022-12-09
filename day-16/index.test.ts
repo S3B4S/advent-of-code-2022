@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.167.0/testing/asserts.ts"
+import { assertEquals } from "../deps.ts"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = `

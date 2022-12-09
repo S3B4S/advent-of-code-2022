@@ -10,7 +10,7 @@ export const solvePart2 = (input: string) => {
 }
 `
 
-const testFile = day => `import { assertEquals } from "https://deno.land/std@0.167.0/testing/asserts.ts"
+const testFile = day => `import { assertEquals } from "../deps.ts"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = \`
