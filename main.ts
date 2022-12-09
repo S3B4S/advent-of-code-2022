@@ -1,3 +1,6 @@
+// Kinda deprecated during transition to deno
+// Something else will be in place for this
+
 import { exit } from 'process';
 import * as Day3 from './03_rucksack-reorganization'
 import * as Day4 from './04_camp-cleanup'
