@@ -123,3 +123,11 @@ export const directionIterator = <T>([row, column]: Coordinate, map: T[][]) => {
     },
   }
 }
+
+export const zip = <A, B>(xs: A[], ys: B[]) => {
+  const maxLength = Math.min(xs.length, ys.length)
+  return xs.slice(0, maxLength).map((a, i) => [a, ys[i]])
+}
+
+export const subtractLists = (xs: number[], ys: number[]) => zip(xs, ys).map(([x, y]) => x - y)
+export const addLists = (xs: number[], ys: number[]) => zip(xs, ys).map(([x, y]) => x + y)
