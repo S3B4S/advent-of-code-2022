@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "There are a collection of the solutions I implemented for [advent of code 2022](https://adventofcode.com/2022/)!",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "deno test --allow-read",
     "start": "deno run --allow-read "
   },
   "repository": {
