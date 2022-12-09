@@ -11,6 +11,7 @@ type Direction = 'R' | 'U' | 'L' | 'D'
  * @param set - A `Set` of `string` coordinates visited by the knots.
  * @param knots - The current locations of the knots as an array of `Coordinate` tuples.
  */
+// deno-lint-ignore no-unused-vars
 const printMap = ([amountRows, amountColumns]: [number, number], start: Coordinate, set: Set<string>, knots: Coordinate[]) => {
   const printable = Array.from({ length: amountRows }).map(() =>
     Array.from({ length: amountColumns }).fill('.')
