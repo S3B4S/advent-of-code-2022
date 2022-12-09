@@ -93,14 +93,14 @@ const input: [Direction, number][] = Deno.readTextFileSync('./09_rope-bridge/inp
  * @returns The number of unique coordinates visited by the last knot.
  */
 const part1Fn = (input: [Direction, number][]) => {
+  const visited = new Set<string>()
   let tail: Coordinate = [0, 0]
   let head: Coordinate = [0, 0]
-  let visited = new Set<string>()
   
   visited.add("0,0")
   
-  for (let [direction, amountSteps] of input) {
-    for (let _ of range(0, amountSteps)) {
+  for (const [direction, amountSteps] of input) {
+    for (const _ of range(0, amountSteps)) {
       const futureHead = moveTowards(head, direction)
       
       if (!adjacentTo(tail, futureHead)) {
@@ -124,14 +124,14 @@ const part1Fn = (input: [Direction, number][]) => {
  * @returns The number of unique coordinates visited by the last knot.
  */
 const part2Fn = (input: [Direction, number][], amountKnots: number) => {
-  let visited = new Set<string>()
+  const visited = new Set<string>()
 
   // Head is at index 0
   const knots: Coordinate[] = Array.from({ length: amountKnots }).map(() => [0, 0])
 
-  for (let [direction, amountSteps] of input) {
-    for (let _ of range(0, amountSteps)) {
-      for (let i of range(0, knots.length  - 1)) {
+  for (const [direction, amountSteps] of input) {
+    for (const _ of range(0, amountSteps)) {
+      for (const i of range(0, knots.length  - 1)) {
         const tail = knots[i + 1]
         const head = knots[i]
 

@@ -1,6 +1,7 @@
-import fs from 'fs';
+export const solvePart1 = (input: string) => {
+  return 0
+}
 
-const input = fs.readFileSync(__dirname + '/../../day-10/input.txt', 'utf-8')
-
-export const part1 = ''
-export const part2 = ''
+export const solvePart2 = (input: string) => {
+  return 0
+}
