@@ -83,5 +83,5 @@ export const solvePart2 = (input: string) => {
     }
   }
   
-  return 0
+  return 1
 }
