@@ -19,15 +19,15 @@ export const solvePart1 = (input: string) => {
       }
       cycle +=1
       continue
-    } else {
-      const x = Number(command.split(' ')[1])
-      if (recordAt - 2 < cycle && cycle <= recordAt) {
-        recordedStrengths.push(recordAt * register)
-        recordAt += recordInterval
-      }
-      cycle += 2
-      register += x
     }
+
+    const x = Number(command.split(' ')[1])
+    if (recordAt - 2 < cycle && cycle <= recordAt) {
+      recordedStrengths.push(recordAt * register)
+      recordAt += recordInterval
+    }
+    cycle += 2
+    register += x
   }
   
   return recordedStrengths.reduce(sum, 0)
