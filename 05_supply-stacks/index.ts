@@ -1,8 +1,5 @@
 import { dropWhile, map, takeWhile, turn90DegClockWise } from '../utilts.ts'
-import { flow, pipe } from 'npm:fp-ts/lib/function.js'
-import { not } from 'npm:fp-ts/lib/Predicate.js'
-import { filter } from 'npm:fp-ts/lib/Array.js'
-import { isEmpty as isEmptyString } from 'npm:fp-ts/lib/string.js'
+import { flow, pipe, not, filter, isEmptyString } from '../deps.ts'
 
 type Containers = string[][]
 
