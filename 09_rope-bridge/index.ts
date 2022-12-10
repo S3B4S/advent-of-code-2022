@@ -79,8 +79,8 @@ const moveCloserTo = (trailingTail: Coordinate, goal: Coordinate) => {
   return newLocation!
 }
 
-const input: [Direction, number][] = Deno.readTextFileSync('./09_rope-bridge/input.txt')
-  .trim()
+const parseInput = (input: string): [Direction, number][] =>
+  input .trim()
   .split('\n')
   .map(line => {
     const [direction, amount] = line.trim().split(' ')
@@ -93,14 +93,16 @@ const input: [Direction, number][] = Deno.readTextFileSync('./09_rope-bridge/inp
  * @param input - A list of `Direction` values and distances, representing the movement of the knot.
  * @returns The number of unique coordinates visited by the last knot.
  */
-const part1Fn = (input: [Direction, number][]) => {
+export const solvePart1 = (input: string) => {
+  const commands = parseInput(input)
+
   const visited = new Set<string>()
   let tail: Coordinate = [0, 0]
   let head: Coordinate = [0, 0]
   
   visited.add("0,0")
   
-  for (const [direction, amountSteps] of input) {
+  for (const [direction, amountSteps] of commands) {
     for (const _ of range(0, amountSteps)) {
       const futureHead = moveTowards(head, direction)
       
@@ -124,13 +126,14 @@ const part1Fn = (input: [Direction, number][]) => {
  * @param amountKnots - The number of knots to simulate.
  * @returns The number of unique coordinates visited by the last knot.
  */
-const part2Fn = (input: [Direction, number][], amountKnots: number) => {
+export const solvePart2 = (input: string, amountKnots: number) => {
+  const commands = parseInput(input)
   const visited = new Set<string>()
 
   // Head is at index 0
   const knots: Coordinate[] = Array.from({ length: amountKnots }).map(() => [0, 0])
 
-  for (const [direction, amountSteps] of input) {
+  for (const [direction, amountSteps] of commands) {
     for (const _ of range(0, amountSteps)) {
       for (const i of range(0, knots.length  - 1)) {
         const tail = knots[i + 1]
@@ -166,6 +169,3 @@ const part2Fn = (input: [Direction, number][], amountKnots: number) => {
   
   return visited.size
 }
-
-export const part1 = part1Fn(input)
-export const part2 = part2Fn(input, 10)
