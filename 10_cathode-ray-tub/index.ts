@@ -52,7 +52,7 @@ export const solvePart2 = (input: string) => {
     const spritePosition = [register - 1, register, register + 1]
     
     // CRT drawing
-    stdout(spritePosition.includes((cycle % 40) - 1) ? '#' : '.')
+    stdout(spritePosition.includes((cycle % 40) - 1) ? '#' : ' ')
 
     if (cycle === recordAt) {
       stdout('\n')
@@ -75,12 +75,12 @@ export const solvePart2 = (input: string) => {
     if (command.startsWith('noop')) {
       cycle += 1
       continue
-    } else {
-      const x = Number(command.split(' ')[1])
-      busy = 1
-      toAdd = x
-      cycle += 1
     }
+
+    const x = Number(command.split(' ')[1])
+    busy = 1
+    toAdd = x
+    cycle += 1
   }
   
   return 1
