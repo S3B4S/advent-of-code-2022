@@ -169,3 +169,4 @@ export const solvePart2 = (input: string, amountKnots: number) => {
   
   return visited.size
 }
+  
