@@ -1,6 +1,6 @@
-# Knot Simulator
+# Day 09: Rope Bridge
 
-This code contains two functions for simulating the movement of knots in a grid.
+This code contains two functions for simulating the movement of knots in a grid. It was used to solve [day 9 of Advent of Code](https://adventofcode.com/2022/day/9).
 
 ## `part1Fn`
 

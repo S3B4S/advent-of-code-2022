@@ -1,8 +1,8 @@
 import { assertEquals } from "../deps.ts"
 import { solvePart1, solvePart2 } from "./index.ts"
 
-const exampleInput = Deno.readTextFileSync('./10_cathode-ray-tub/large-example-input.txt')
-const fileInput = Deno.readTextFileSync('./10_cathode-ray-tub/input.txt')
+const exampleInput = Deno.readTextFileSync('./10_cathode-ray-tube/large-example-input.txt')
+const fileInput = Deno.readTextFileSync('./10_cathode-ray-tube/input.txt')
 
 Deno.test("Day 10 - Part 1 - Example input", () => {
   assertEquals(13140, solvePart1(exampleInput))
