@@ -43,12 +43,13 @@ export const solvePart2 = (input: string) => {
 
   const recordInterval = 40
   let recordAt = 40
-  let cycle = 1
+  let cycle = 0
   let register = 1
   let busy = 0
   let toAdd = 0
 
   while (commands.length !== 0) {
+    cycle += 1
     const spritePosition = [register - 1, register, register + 1]
     
     // CRT drawing
@@ -59,28 +60,26 @@ export const solvePart2 = (input: string) => {
       recordAt += recordInterval
     }
 
+    // If busy (because of executing previous addx command) then:
+    // - decrement busy counter
+    // - add value to register if cpu is no longer busy
     if (busy > 0) {
       busy -= 1
       if (busy === 0) {
         register += toAdd
         toAdd = 0
       }
-      cycle += 1
       continue
     }
 
     // Commands is always not empty when entering a loop
     const command = commands.pop()!
 
-    if (command.startsWith('noop')) {
-      cycle += 1
-      continue
-    }
+    if (command.startsWith('noop')) continue
 
     const x = Number(command.split(' ')[1])
     busy = 1
     toAdd = x
-    cycle += 1
   }
   
   return 1
