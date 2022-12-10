@@ -33,11 +33,6 @@ export const solvePart1 = (input: string) => {
   return recordedStrengths.reduce(sum, 0)
 }
 
-const stdout = (content: string) => {
-  const contentBytes = new TextEncoder().encode(content)
-  Deno.writeAllSync(Deno.stdout, contentBytes)
-}
-
 export const solvePart2 = (input: string) => {
   const commands = lines(input).reverse()
 
@@ -47,16 +42,17 @@ export const solvePart2 = (input: string) => {
   let register = 1
   let busy = 0
   let toAdd = 0
+  let output = ''
 
   while (commands.length !== 0) {
-    cycle += 1
+    cycle++
     const spritePosition = [register - 1, register, register + 1]
     
     // CRT drawing
-    stdout(spritePosition.includes((cycle % 40) - 1) ? '#' : ' ')
+    output += spritePosition.includes((cycle - 1) % 40) ? '#' : ' '
 
     if (cycle === recordAt) {
-      stdout('\n')
+      output += '\n'
       recordAt += recordInterval
     }
 
@@ -64,7 +60,7 @@ export const solvePart2 = (input: string) => {
     // - decrement busy counter
     // - add value to register if cpu is no longer busy
     if (busy > 0) {
-      busy -= 1
+      busy--
       if (busy === 0) {
         register += toAdd
         toAdd = 0
@@ -82,5 +78,5 @@ export const solvePart2 = (input: string) => {
     toAdd = x
   }
   
-  return 1
+  return output
 }

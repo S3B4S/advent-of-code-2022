@@ -12,11 +12,28 @@ Deno.test("Day 10 - Part 1 - File input", () => {
   assertEquals(17840, solvePart1(fileInput))
 })
 
-// In part 2, we needed to read the solution from the console output
+const part2ExampleInputExpected = `
+##  ##  ##  ##  ##  ##  ##  ##  ##  ##  
+###   ###   ###   ###   ###   ###   ### 
+####    ####    ####    ####    ####    
+#####     #####     #####     #####     
+######      ######      ######      ####
+#######       #######       #######     
+`.trimStart()
+
 Deno.test("Day 10 - Part 2 - Example input", () => {
-  assertEquals(1, solvePart2(exampleInput))
+  assertEquals(part2ExampleInputExpected, solvePart2(exampleInput))
 })
 
+const part2InputExpected = `
+####  ##  #     ##  #  # #    ###   ##  
+#    #  # #    #  # #  # #    #  # #  # 
+###  #  # #    #    #  # #    #  # #    
+#    #### #    # ## #  # #    ###  # ## 
+#    #  # #    #  # #  # #    #    #  # 
+#### #  # ####  ###  ##  #### #     ### 
+`.trimStart()
+
 Deno.test("Day 10 - Part 2 - File input", () => {
-  assertEquals(1, solvePart2(fileInput))
+  assertEquals(part2InputExpected, solvePart2(fileInput))
 })
