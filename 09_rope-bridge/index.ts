@@ -162,7 +162,7 @@ export const solvePart2 = (input: string, amountKnots: number) => {
 
         const newLocation = moveCloserTo(tail, head)
         knots[i + 1] = newLocation
-        visited.add(knots[knots.length - 1].toString())
+        visited.add(knots.at(-1)!.toString())
       }
     }
   }

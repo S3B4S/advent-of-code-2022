@@ -28,9 +28,10 @@ const findDuplicateInRucksack = (rucksack: Rucksack): string => {
  * @param rucksacks 
  * @returns character
  */
-const charInAll = (rucksacks: string[]): string => {
+const charInAll = (rucksacks: string[]): string | undefined => {
+  if (rucksacks.length === 0) return undefined
   const found = rucksacks.slice(0, rucksacks.length - 1).map(strToObject)
-  return rucksacks[rucksacks.length - 1].split('').find(c => found.every(r => r[c]))!
+  return rucksacks.at(-1)!.split('').find(c => found.every(r => r[c]))
 }
 
 const parseInputLine = (line: string): Rucksack => {
