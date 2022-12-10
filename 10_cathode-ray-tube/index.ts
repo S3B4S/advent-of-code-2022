@@ -1,6 +1,4 @@
-import { sum } from '../utilts.ts'
-
-const lines = (input: string) => input.trim().split('\n')
+import { lines, sum } from '../utilts.ts'
 
 export const solvePart1 = (input: string) => {
   const commands = lines(input)
