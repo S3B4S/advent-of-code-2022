@@ -4,18 +4,19 @@ import { solvePart1, solvePart2 } from "./index.ts"
 const exampleInput = Deno.readTextFileSync('./day-10/large-example-input.txt')
 const fileInput = Deno.readTextFileSync('./day-10/input.txt')
 
-Deno.test("Day 10 - Part 1 - Example input", {only: true}, () => {
+Deno.test("Day 10 - Part 1 - Example input", () => {
   assertEquals(13140, solvePart1(exampleInput))
 })
 
-Deno.test("Day 10 - Part 1 - File input",{only: true}, () => {
+Deno.test("Day 10 - Part 1 - File input", () => {
   assertEquals(17840, solvePart1(fileInput))
 })
 
+// In part 2, we needed to read the solution from the console output
 Deno.test("Day 10 - Part 2 - Example input", () => {
-  assertEquals(0, solvePart2(exampleInput))
+  assertEquals(1, solvePart2(exampleInput))
 })
 
 Deno.test("Day 10 - Part 2 - File input", () => {
-  assertEquals(0, solvePart2(fileInput))
+  assertEquals(1, solvePart2(fileInput))
 })
