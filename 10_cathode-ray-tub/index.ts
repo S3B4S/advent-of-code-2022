@@ -49,7 +49,7 @@ export const solvePart2 = (input: string) => {
     const spritePosition = [register - 1, register, register + 1]
     
     // CRT drawing
-    output += spritePosition.includes((cycle - 1) % 40) ? '#' : ' '
+    output += spritePosition.includes((cycle - 1) % 40) ? '█' : ' '
 
     if (cycle === recordAt) {
       output += '\n'
