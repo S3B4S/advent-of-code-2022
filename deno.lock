@@ -8,10 +8,14 @@
     "https://deno.land/std@0.167.0/testing/asserts.ts": "51353e79437361d4b02d8e32f3fc83b22231bc8f8d4c841d86fd32b0b0afe940"
   },
   "npm": {
-    "specifiers": { "fp-ts": "fp-ts@2.13.1" },
+    "specifiers": { "fp-ts": "fp-ts@2.13.1", "monpar@1.0.3": "monpar@1.0.3" },
     "packages": {
       "fp-ts@2.13.1": {
         "integrity": "sha512-0eu5ULPS2c/jsa1lGFneEFFEdTbembJv8e4QKXeVJ3lm/5hyve06dlKZrpxmMwJt6rYen7sxmHHK2CLaXvWuWQ==",
+        "dependencies": {}
+      },
+      "monpar@1.0.3": {
+        "integrity": "sha512-R3m3i3qOYNEmcAHXHlN952O18DV65cM9ubposChFltEKzJR261QuXjRxY306LD64HVVjo1E4rMARg2ZaYajrQw==",
         "dependencies": {}
       }
     }

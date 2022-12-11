@@ -1,4 +1,5 @@
 import { assertEquals } from "../deps.ts"
+import { parseMonkeyId, parseStartingItems, parseOperation, parseDivisibleBy, parseIfTrue, parseIfFalse } from "./parsing.ts"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = `
@@ -30,6 +31,30 @@ Monkey 3:
     If true: throw to monkey 0
     If false: throw to monkey 1
 `
+
+Deno.test("Day 11 - Parsing tests - Monkey id", () => {
+  assertEquals(0, parseMonkeyId("Monkey 0:"))
+})
+
+Deno.test("Day 11 - Parsing tests - Starting items", () => {
+  assertEquals(74, parseStartingItems("Starting items: 74"))
+})
+
+Deno.test("Day 11 - Parsing tests - Operation", () => {
+  assertEquals("+ 3", parseOperation("Operation: new = old + 3"))
+})
+
+Deno.test("Day 11 - Parsing tests - Divisible by", () => {
+  assertEquals(17, parseDivisibleBy("Test: divisible by 17"))
+})
+
+Deno.test("Day 11 - Parsing tests - If true", () => {
+  assertEquals(0, parseIfTrue("If true: throw to monkey 0"))
+})
+
+Deno.test("Day 11 - Parsing tests - If false", () => {
+  assertEquals(1, parseIfFalse("If false: throw to monkey 1"))
+})
 
 const fileInput = Deno.readTextFileSync('./day-11/input.txt')
 
