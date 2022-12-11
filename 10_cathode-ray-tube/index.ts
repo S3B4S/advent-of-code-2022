@@ -1,4 +1,4 @@
-import { lines, sum } from '../utilts.ts'
+import { lines, sum } from 'utils'
 
 export const solvePart1 = (input: string) => {
   const commands = lines(input)
