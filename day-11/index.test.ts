@@ -1,7 +1,5 @@
 import { assertEquals } from "../deps.ts"
 import { 
-  parseNumberSequence,
-  parseNumbersSeparatedBy,
   parseMonkeyId,
   parseStartingItems,
   parseOperation,
@@ -67,22 +65,6 @@ Deno.test("Day 11 - Parsing tests - If true", () => {
 
 Deno.test("Day 11 - Parsing tests - If false", () => {
   assertEquals(1, parseIfFalse("If false: throw to monkey 1"))
-})
-
-Deno.test("Parsing - sequence of numbers", () => {
-  assertEquals([[54, ", 65, 100"]], parseNumberSequence("54, 65, 100"))
-})
-
-Deno.test("Parsing - sequence of numbers - failing", () => {
-  assertEquals([], parseNumberSequence(" 54, 65, 100"))
-})
-
-Deno.test("Parsing - sequence of numbers with delimiter", () => {
-  assertEquals([[[54, 65], "100"]], parseNumbersSeparatedBy(", ")("54, 65, 100"))
-})
-
-Deno.test("Parsing - sequence of numbers with delimiter - failing", () => {
-  assertEquals([[[], " 54, 65, 100"]], parseNumbersSeparatedBy(", ")(" 54, 65, 100"))
 })
 
 const fileInput = Deno.readTextFileSync('./day-11/input.txt')
