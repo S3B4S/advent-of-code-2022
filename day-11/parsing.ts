@@ -1,6 +1,6 @@
 import { parseNumbersWithDelimiter } from '../parsing.ts'
 import { monpar } from '../deps.ts'
-const { liftAs, sentence, take, char, unpack, many, some, numeric } = monpar
+const { liftAs, sentence, take, char, unpack } = monpar
 
 export const parseMonkeyId = unpack(liftAs(
   () => (n: string) => () => Number(n),
@@ -8,8 +8,6 @@ export const parseMonkeyId = unpack(liftAs(
   take,
   char(":"),
 ))
-
-
 
 export const parseStartingItems = unpack(liftAs(
   () => (numbers: number[]) => (number: number) => numbers.concat(number),
