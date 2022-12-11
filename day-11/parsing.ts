@@ -10,7 +10,7 @@ export const parseMonkeyId = unpack(liftAs(
 ))
 
 export const parseStartingItems = unpack(liftAs(
-  () => (numbers: number[]) => (number: number) => numbers.concat(number),
+  () => (numbers: number[]) => numbers,
   sentence("Starting items: "),
   parseNumbersWithDelimiter(", "),
 ))
