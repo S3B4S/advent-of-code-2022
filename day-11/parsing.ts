@@ -1,14 +1,36 @@
 import { monpar } from '../deps.ts'
-const { liftAs, sentence, take, char, unpack } = monpar
+const { liftAs, sentence, take, char, unpack, many, some, numeric } = monpar
 
 export const parseMonkeyId = unpack(liftAs(
-  (_: string) => (n: number) => (_: string) => Number(n),
+  () => (n: string) => () => Number(n),
   sentence("Monkey "),
   take,
   char(":"),
 ))
 
-export const parseStartingItems = (input: string) => 0
+export const parseNumberSequence = liftAs(
+  (numbers: string[]) => Number(numbers.join('')),
+  some(numeric),
+)
+
+export const parseNumbersSeparatedBy = (delimeter: string) => liftAs(
+  (digits: number[]) => digits,
+  many(
+    liftAs(
+      (number: number) => () => number,
+      parseNumberSequence,
+      sentence(delimeter),
+    )
+  )
+  ,
+)
+
+export const parseStartingItems = unpack(liftAs(
+  () => (numbers: number[]) => (number: number) => numbers.concat(number),
+  sentence("Starting items: "),
+  parseNumbersSeparatedBy(", "),
+  parseNumberSequence,
+))
 
 export const parseOperation = (input: string) => input
 
