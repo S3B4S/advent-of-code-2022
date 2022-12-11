@@ -30,19 +30,19 @@ export const parseOperation = unpack(liftAs<(n: number) => number>(
 ))
 
 export const parseDivisibleBy = unpack(liftAs(
-  () => (n: number)=> n,
+  () => (n: number) => n,
   sentence("Test: divisible by "),
   parseNumber,
 ))
 
 export const parseIfTrue = unpack(liftAs(
-  () => (n: number)=> n,
+  () => (n: number) => n,
   sentence("If true: throw to monkey "),
   parseNumber,
 ))
 
 export const parseIfFalse = unpack(liftAs(
-  () => (n: number)=> n,
+  () => (n: number) => n,
   sentence("If false: throw to monkey "),
   parseNumber,
 ))
