@@ -51,8 +51,16 @@ Deno.test("Day 11 - Parsing tests - Starting items, 4 elements", () => {
   assertEquals([54, 65, 75, 74], parseStartingItems("Starting items: 54, 65, 75, 74"))
 })
 
-Deno.test("Day 11 - Parsing tests - Operation", () => {
-  assertEquals("+ 3", parseOperation("Operation: new = old + 3"))
+Deno.test("Day 11 - Parsing tests - Operation +", () => {
+  assertEquals(4, parseOperation("Operation: new = old + 3")!(1))
+})
+
+Deno.test("Day 11 - Parsing tests - Operation *", () => {
+  assertEquals(10, parseOperation("Operation: new = old * 10")!(1))
+})
+
+Deno.test("Day 11 - Parsing tests - Operation * old", () => {
+  assertEquals(16, parseOperation("Operation: new = old * old")!(4))
 })
 
 Deno.test("Day 11 - Parsing tests - Divisible by", () => {

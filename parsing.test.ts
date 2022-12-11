@@ -18,9 +18,7 @@ Deno.test("Parsing - sequence of numbers with delimiter - failing", () => {
 })
 
 Deno.test("Parsing - sequence of numbers with delimiter including last - 3 elements", () => {
-  const x = parseNumbersWithDelimiter(", ")("54, 65, 100")
-  console.log(x)
-  assertEquals([[[54, 65, 100], ""]], x)
+  assertEquals([[[54, 65, 100], ""]], parseNumbersWithDelimiter(", ")("54, 65, 100"))
 })
 
 Deno.test("Parsing - sequence of numbers with delimiter including last - 1 element", () => {
