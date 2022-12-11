@@ -100,7 +100,7 @@ export const solvePart2 = (input: string) => {
   // https://en.wikipedia.org/wiki/Least_common_multiple
   // This is not _the_ lcm, but rather _a_ common multiple. As long
   // as it makes the worry levels small enough
-  const lcm = monkeys.map(m => m.divisor).reduce((a, b) => a * b, 1)
+  const cm = monkeys.map(m => m.divisor).reduce((a, b) => a * b, 1)
 
   // In every round, every monkey takes a single turn
   for (const _round of range(0, 10000)) {
@@ -111,9 +111,9 @@ export const solvePart2 = (input: string) => {
         monkey.amountInspects += 1
         const wl1 = monkey.operation(item)
         if (wl1 % monkey.divisor === 0) {
-          monkeys[monkey.ifTrue].startingItems.push(wl1 % lcm)
+          monkeys[monkey.ifTrue].startingItems.push(wl1 % cm)
         } else {
-          monkeys[monkey.ifFalse].startingItems.push(wl1 % lcm)
+          monkeys[monkey.ifFalse].startingItems.push(wl1 % cm)
         }
       }
 
