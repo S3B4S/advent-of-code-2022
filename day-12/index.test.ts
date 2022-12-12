@@ -76,5 +76,5 @@ Deno.test("Day 12 - Part 2 - Example input", () => {
 })
 
 Deno.test("Day 12 - Part 2 - File input", () => {
-  assertEquals(0, solvePart2(fileInput))
+  assertEquals(443, solvePart2(fileInput))
 })
