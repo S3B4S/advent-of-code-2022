@@ -75,7 +75,7 @@ Deno.test("Day 11 - Parsing tests - If false", () => {
   assertEquals(1, parseIfFalse("If false: throw to monkey 1"))
 })
 
-const fileInput = Deno.readTextFileSync('./day-11/input.txt')
+const fileInput = Deno.readTextFileSync('./11_monkey-in-the-middle/input.txt')
 
 Deno.test("Day 11 - Part 1 - Example input", () => {
   assertEquals(10605, solvePart1(exampleInput))

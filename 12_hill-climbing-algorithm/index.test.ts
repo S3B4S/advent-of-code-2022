@@ -17,7 +17,7 @@ jihgfery
 klmnopqE
 `
 
-const fileInput = Deno.readTextFileSync('./day-12/input.txt')
+const fileInput = Deno.readTextFileSync('./12_hill-climbing-algorithm/input.txt')
 
 Deno.test("Day 12 - Is at most one elevated 1", () => {
   assertEquals(true, isAtMostOneElevated("b", "c"))
