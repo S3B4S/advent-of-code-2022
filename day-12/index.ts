@@ -1,13 +1,5 @@
 import { addLists, Coordinate } from 'utils'
 
-class PriorityQueue<T> {
-  items: T[]
-
-  constructor() {
-    this.items = []
-  }
-}
-
 export const isAtMostOneElevated = (currentTile: string, targetTile: string) => {
   if (currentTile === "S") {
     currentTile = "a"
