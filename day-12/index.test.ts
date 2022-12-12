@@ -116,7 +116,7 @@ Deno.test("Day 12 - Part 1 - Example input with loop of a's", () => {
 })
 
 Deno.test("Day 12 - Part 1 - File input", () => {
-  assertEquals(0, solvePart1(fileInput))
+  assertEquals(449, solvePart1(fileInput))
 })
 
 Deno.test("Day 12 - Part 2 - Example input", () => {

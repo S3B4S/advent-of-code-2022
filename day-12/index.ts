@@ -1,5 +1,13 @@
 import { addLists, Coordinate } from 'utils'
 
+class PriorityQueue<T> {
+  items: T[]
+
+  constructor() {
+    this.items = []
+  }
+}
+
 export const isAtMostOneElevated = (currentTile: string, targetTile: string) => {
   if (currentTile === "S") {
     currentTile = "a"
@@ -22,8 +30,11 @@ const Direction = {
   West: [0, -1],
 }
 
+const dirs = Object.values(Direction)
+
 interface DijkstraEntry {
-  coordinate: string // "0,0"
+  id: string
+  coordinate: Coordinate // "0,0"
   visited: boolean
   cost: number // lowest cost to reach this
 }
@@ -31,71 +42,70 @@ interface DijkstraEntry {
 const dijkstra = (grid: string[][], startingLocation: Coordinate): number | undefined => {
   const lookup: Record<string, DijkstraEntry> = {}
 
+  let endLocation: Coordinate = [-1, -1];
+
+  // Add to lookup table
+  for (let y = 0; y < grid.length; y++) {
+    for (let x = 0; x < grid[0].length; x++) {
+      if (grid[y][x] === "E") endLocation = [y, x]
+      lookup[[y, x].toString()] = {
+        id: [y, x].toString(),
+        coordinate: [y, x],
+        visited: false,
+        cost: Number.MAX_VALUE,
+      }
+    }
+  }
+
+  // Add starting location
   lookup[startingLocation.toString()] = {
-    coordinate: startingLocation.toString(),
+    id: startingLocation.toString(),
+    coordinate: startingLocation,
     visited: false,
     cost: 0,
   }
 
-  let endLocation: Coordinate = [-1, -1];
-
-  const queue = [startingLocation]
+  const queue = [lookup[startingLocation.toString()]]
 
   while (queue.length !== 0) {
-    const currentCoordiantes = queue.shift()!
-    const currentLocation = lookup[currentCoordiantes.toString()]
-
+    const currentLocation = queue.shift()!
+    const [currentX, currentY] = currentLocation.coordinate
     currentLocation.visited = true
 
-    const neighbours = Object.values(Direction)
-      .map(direction => addLists(direction, currentCoordiantes) as Coordinate)
-      .filter(candidate => 
-        // Candidate is not out of bounds
-        !(candidate[0] < 0 || candidate[0] > grid.length - 1 || candidate[1] < 0 || candidate[1] > grid[0].length - 1)
-        // And is at most one elevation higher
-        && isAtMostOneElevated(grid[currentCoordiantes[0]][currentCoordiantes[1]], grid[candidate[0]][candidate[1]])
-      )
-
-    neighbours.forEach(neighbour => {
-      // Save location of E
-      if (grid[neighbour[0]][neighbour[1]] === "E") {
-        endLocation = neighbour
-      }
-        
-      // Add any neighbours to lookup table if not previously seen
-      if (!lookup[neighbour.toString()]) {
-        lookup[neighbour.toString()] = {
-          coordinate: neighbour.toString(),
-          visited: false,
-          cost: Number.MAX_VALUE,
-        }
-      }
-
+    for (const dir of dirs) {
+      const res = addLists(dir, currentLocation.coordinate) as Coordinate      
+      
+      // If neighbour is not acceptable target, go next
+      if (   !lookup[res.toString()]
+          || !isAtMostOneElevated(grid[currentX][currentY], grid[res[0]][res[1]])
+          || queue.some(q => q.id === res.toString())
+        ) continue
+      
       // Record the cost to get to that location
-      const dijkstrEntry = lookup[neighbour.toString()]
+      const dijkstrEntry = lookup[res.toString()]
 
-      if (currentLocation.cost + 1 < dijkstrEntry.cost) {
+      if (currentLocation.cost + 1 < dijkstrEntry.cost)
         dijkstrEntry.cost = currentLocation.cost + 1
-      }
-    })
+      
 
-    // Only add those that have not been visited before to queue
-    neighbours
-      .filter(candidate => !lookup[candidate.toString()].visited)
-      .forEach(c => queue.push(c))
+      if (!lookup[res.toString()].visited)
+        queue.push(lookup[res.toString()])
+    }
   }
 
   return lookup[endLocation.toString()].cost
-
 }
 
 
 export const solvePart1 = (input: string) => {
   let startLocation: Coordinate = [-1, -1]
-  const grid = input.trim().split('\n').map((line, rowIndex) => line.split('').map((cell, columnIndex) => {
-    if (cell === "S") startLocation = [rowIndex, columnIndex]
-    return cell
-  }))
+  const grid = input
+    .trim()
+    .split('\n')
+    .map((line, rowIndex) => line.split('').map((cell, columnIndex) => {
+      if (cell === "S") startLocation = [rowIndex, columnIndex]
+      return cell
+    }))
 
   const amountSteps = dijkstra(grid, startLocation)
   return amountSteps
