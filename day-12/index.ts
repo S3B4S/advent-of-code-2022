@@ -39,7 +39,7 @@ interface DijkstraEntry {
   cost: number // lowest cost to reach this
 }
 
-const dijkstra = (grid: string[][], startingLocation: Coordinate): number | undefined => {
+const dijkstra = (grid: string[][], startingLocation: Coordinate): number => {
   const lookup: Record<string, DijkstraEntry> = {}
 
   let endLocation: Coordinate = [-1, -1];
@@ -112,5 +112,15 @@ export const solvePart1 = (input: string) => {
 }
 
 export const solvePart2 = (input: string) => {
-  return 0
+  const startingLocations: Coordinate[] = []
+  const grid = input
+    .trim()
+    .split('\n')
+    .map((line, rowIndex) => line.split('').map((cell, columnIndex) => {
+      if (cell === "S" || cell === "a") startingLocations.push([rowIndex, columnIndex])
+      return cell
+    }))
+
+  const distances = startingLocations.map(startingLocation => dijkstra(grid, startingLocation)).filter(n => n)
+  return Math.min(...distances)
 }
