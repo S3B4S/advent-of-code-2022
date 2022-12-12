@@ -22,47 +22,71 @@ const Direction = {
   West: [0, -1],
 }
 
-const deptFirstSearchRec = (grid: string[][], visited: Set<string>, currentLocation: Coordinate): number | undefined => {
-  // Base case
-  if (grid[currentLocation[0]][currentLocation[1]] === "E") {
-    return 0
+interface DijkstraEntry {
+  coordinate: string // "0,0"
+  visited: boolean
+  cost: number // lowest cost to reach this
+}
+
+const dijkstra = (grid: string[][], startingLocation: Coordinate): number | undefined => {
+  const lookup: Record<string, DijkstraEntry> = {}
+
+  lookup[startingLocation.toString()] = {
+    coordinate: startingLocation.toString(),
+    visited: false,
+    cost: 0,
   }
-  
-  // console.log({ currentLocation, visited })
 
-  // Calculate possible locations
-  const candidates: Coordinate[] = Object.values(Direction)
-    .map(direction => addLists(direction, currentLocation) as Coordinate)
-    // .map(x => { console.log(x); return x})
-    .filter(candidate => 
-      // And candidate is not out of bounds
-      !(candidate[0] < 0 || candidate[0] > grid.length - 1 || candidate[1] < 0 || candidate[1] > grid[0].length - 1)
-      // And we have not visited this location before
-      && !visited.has(candidate.toString())
-      // We can jump to candidate
-      && isAtMostOneElevated(grid[currentLocation[0]][currentLocation[1]], grid[candidate[0]][candidate[1]])
-    )
+  let endLocation: Coordinate = [-1, -1];
 
-  // If there are no candidates, we're at a dead end
-  if (candidates.length === 0) {
-    return undefined
+  const queue = [startingLocation]
+
+  while (queue.length !== 0) {
+    const currentCoordiantes = queue.shift()!
+    const currentLocation = lookup[currentCoordiantes.toString()]
+
+    currentLocation.visited = true
+
+    const neighbours = Object.values(Direction)
+      .map(direction => addLists(direction, currentCoordiantes) as Coordinate)
+      .filter(candidate => 
+        // Candidate is not out of bounds
+        !(candidate[0] < 0 || candidate[0] > grid.length - 1 || candidate[1] < 0 || candidate[1] > grid[0].length - 1)
+        // And is at most one elevation higher
+        && isAtMostOneElevated(grid[currentCoordiantes[0]][currentCoordiantes[1]], grid[candidate[0]][candidate[1]])
+      )
+
+    neighbours.forEach(neighbour => {
+      // Save location of E
+      if (grid[neighbour[0]][neighbour[1]] === "E") {
+        endLocation = neighbour
+      }
+        
+      // Add any neighbours to lookup table if not previously seen
+      if (!lookup[neighbour.toString()]) {
+        lookup[neighbour.toString()] = {
+          coordinate: neighbour.toString(),
+          visited: false,
+          cost: Number.MAX_VALUE,
+        }
+      }
+
+      // Record the cost to get to that location
+      const dijkstrEntry = lookup[neighbour.toString()]
+
+      if (currentLocation.cost + 1 < dijkstrEntry.cost) {
+        dijkstrEntry.cost = currentLocation.cost + 1
+      }
+    })
+
+    // Only add those that have not been visited before to queue
+    neighbours
+      .filter(candidate => !lookup[candidate.toString()].visited)
+      .forEach(c => queue.push(c))
   }
-  
-  const newVisited = new Set(visited)
-  newVisited.add(currentLocation.toString())
-  const results = candidates.flatMap(nextLocation => {
-    const res = deptFirstSearchRec(grid, newVisited, nextLocation)
-    if (res === undefined) {
-      return []
-    } else {
-      return 1 + res
-    }
-  })
 
-  // All the candidates had reached a dead end
-  if (results.length === 0) return undefined
-  
-  return Math.min(...results)
+  return lookup[endLocation.toString()].cost
+
 }
 
 
@@ -73,8 +97,7 @@ export const solvePart1 = (input: string) => {
     return cell
   }))
 
-  const visited = new Set<string>()
-  const amountSteps = deptFirstSearchRec(grid, visited, startLocation)
+  const amountSteps = dijkstra(grid, startLocation)
   return amountSteps
 }
 
