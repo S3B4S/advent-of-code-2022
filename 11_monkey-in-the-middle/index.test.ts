@@ -125,6 +125,7 @@ Monkey 2:
     If false: throw to monkey 3
 `)!
 
+  // deno-lint-ignore no-unused-vars
   const ms = monkeys.map(({ operation, ...m }) => m )
   const operands = [4, 1, 5]
   const results = monkeys.map(({ operation }, i) => operation(operands[i]))
