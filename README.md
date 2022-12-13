@@ -20,7 +20,7 @@ To run the tests for a given day, use the following command:
 $ deno test --allow-read ./<day>/
 ```
 
-To run _all_ the tests, use the following command:
+To run all the tests, use the following command:
 
 ```
 $ deno test --allow-read
