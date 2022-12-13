@@ -31,6 +31,7 @@ const https = require('https');
 const cookie = process.env.COOKIE
 const year = 2022;
 const day = process.argv[2];
+const to = process.argv[3];
 
 // Function to download the puzzle input
 async function downloadPuzzleInput() {
@@ -80,7 +81,7 @@ async function downloadPuzzleInput() {
 downloadPuzzleInput()
   .then((input) => {
     // Write the puzzle input to the "input.txt" file
-    fs.writeFileSync(`./day-${String(day).padStart(2, '0')}/input.txt`, input);
+    fs.writeFileSync(`./${to ?? String(day).padStart(2, '0')}/input.txt`, input);
   })
   .catch((error) => {
     // Print any error that occurred
