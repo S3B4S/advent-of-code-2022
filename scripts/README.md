@@ -1,28 +1,59 @@
-# Advent of Code Input Downloader
-
-This script is used to download the puzzle input for a particular day of [Advent of Code](https://adventofcode.com/). Advent of Code is an annual event where programmers compete by solving a series of puzzles.
-
-## Prerequisites
-
-- Node.js
-- Your Advent of Code session cookie
+# Scripts
 
 ## Usage
 
-1. Set the `COOKIE` environment variable to your Advent of Code session cookie
-2. Run the script with the day number as a command line argument, for example:
-
+In order to run these scripts directly from your CLI, such as this:
 ```
-node download-puzzle-input.js 5
+$ ./scripts/download-puzzle-input.ts
 ```
 
-This will download the puzzle input for day 5 of Advent of Code and save it to a file called `input.txt` in the `day-05` directory.
+They need to have the proper permissions. You can set these by using `chmod`:
+```
+$ chmod +x ./scripts/download-puzzle-input.ts
+```
 
-## Code Overview
+After that, they will have the permission to be executable. The shebang found in the scripts will have them be run by Deno.
 
-This script uses the `https` module to make a GET request to the Advent of Code website and download the puzzle input for a given day. The day is specified by a command line argument, and the user's session cookie is stored in the `COOKIE` environment variable. The downloaded input is then saved to a file in the `day-${day}` directory.
+## Advent of Code Input Downloader
 
-## Get Advent of Code cookie
+This script is used to download the puzzle input for a (given) day of [Advent of Code](https://adventofcode.com/).
+
+### Prerequisites
+
+- Deno
+- Your Advent of Code session cookie
+
+### Usage
+
+1. Set the `AOC_COOKIE` environment variable to your Advent of Code session cookie:
+
+```
+$ export AOC_COOKIE=<your AOC cookie>
+```
+
+2. Run the script:
+
+```
+$ ./scripts/download-puzzle-input.js
+```
+
+This will download the puzzle input for today from Advent of Code and save it to a file called `input.txt` in the `day-<current-day>` directory.
+
+There's several options
+
+- Download a puzzle input for a specified day
+
+```
+$ ./scripts/download-puzzle-input.js 6
+```
+
+- Download a puzzle input for a specific day into a specified folder
+
+```
+$ ./scripts/download-puzzle-input.js 6 ./6_name-of-challenge/
+```
+
+### Get Advent of Code cookie
 
 To find your Advent of Code session cookie:
 
@@ -42,9 +73,10 @@ Alternatively, you can try the following:
 6. Click on the network request to view its details.
 7. In the "Headers" section, look for the `cookie` field. The value of this field is your Advent of Code session cookie.
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Rename
+
+@TODO
 
 ---
 

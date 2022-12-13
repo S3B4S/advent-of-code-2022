@@ -1,3 +1,9 @@
+#!/usr/bin/env -S deno run --allow-env --allow-read --allow-write
+
+import { existsSync } from "https://deno.land/std/fs/mod.ts"
+
+const [from, to] = Deno.args
+
 const indexFile = `// deno-lint-ignore-file
 // @TODO Remove above line when starting on this day
 
@@ -10,7 +16,7 @@ export const solvePart2 = (input: string) => {
 }
 `
 
-const testFile = day => `import { assertEquals } from "deps"
+const testFile = (day: number) => `import { assertEquals } from "deps"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = \`
@@ -36,9 +42,12 @@ Deno.test("Day ${day} - Part 2 - File input", () => {
 })
 `;
 
-for (let i = 10; i <= 25; i++) {
-  const folderName = `day-${i}`;
-
-  Deno.writeTextFileSync(`./${folderName}/index.ts`, indexFile);
-  Deno.writeTextFileSync(`./${folderName}/index.test.ts`, testFile(i));
+for (let i = Number(from); i <= Number(to); i++) {
+  const folderPath = `./day-${i}`;
+  
+  if (!existsSync(folderPath))
+    Deno.mkdirSync(folderPath)
+  
+  Deno.writeTextFileSync(`${folderPath}/index.ts`, indexFile);
+  Deno.writeTextFileSync(`${folderPath}/index.test.ts`, testFile(i));
 }

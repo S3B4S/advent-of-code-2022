@@ -1,3 +1,5 @@
+#!/usr/bin/env -S deno run --allow-env --allow-read --allow-write
+
 // Import the necessary modules
 import { join } from "https://deno.land/std/path/mod.ts";
 

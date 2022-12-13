@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "outDir": "build",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "module": "commonjs",
-    "noImplicitAny": true,
-  },
-}
