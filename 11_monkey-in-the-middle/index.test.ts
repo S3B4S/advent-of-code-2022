@@ -101,60 +101,63 @@ Deno.test("Day 11 - Parse monkey block", () => {
   assertEquals(38, operation(2))
 })
 
-// Deno.test("Day 11 - Parse monkeys", () => {
-//   const monkeys: Monkey[] = unpack(parseMonkeys)(`
-// Monkey 0:
-//   Starting items: 79, 98
-//   Operation: new = old * 19
-//   Test: divisible by 23
-//     If true: throw to monkey 2
-//     If false: throw to monkey 3
+Deno.test("Day 11 - Parse monkeys", () => {
+  const monkeys: Monkey[] = unpack(parseMonkeys)(`
+Monkey 0:
+  Starting items: 79, 98
+  Operation: new = old * 19
+  Test: divisible by 23
+    If true: throw to monkey 2
+    If false: throw to monkey 3
 
-// Monkey 1:
-//   Starting items: 54, 65, 75, 74
-//   Operation: new = old + 6
-//   Test: divisible by 19
-//     If true: throw to monkey 2
-//     If false: throw to monkey 0
+Monkey 1:
+  Starting items: 54, 65, 75, 74
+  Operation: new = old + 6
+  Test: divisible by 19
+    If true: throw to monkey 2
+    If false: throw to monkey 0
 
-// Monkey 2:
-//   Starting items: 79, 60, 97
-//   Operation: new = old * old
-//   Test: divisible by 13
-//     If true: throw to monkey 1
-//     If false: throw to monkey 3
+Monkey 2:
+  Starting items: 79, 60, 97
+  Operation: new = old * old
+  Test: divisible by 13
+    If true: throw to monkey 1
+    If false: throw to monkey 3
+`)!
 
-// `)!
+  const ms = monkeys.map(({ operation, ...m }) => m )
+  const operands = [4, 1, 5]
+  const results = monkeys.map(({ operation }, i) => operation(operands[i]))
 
-//   const ms = monkeys.map(({ operation, ...m}) => m )
+  const monkey0 = {
+    id: 0,
+    items: [79, 98],
+    divisor: 23,
+    ifTrue: 2,
+    ifFalse: 3,
+    amountInspects: 0,
+  }
+  const monkey1 = {
+    id: 1,
+    items: [54, 65, 75, 74],
+    divisor: 19,
+    ifTrue: 2,
+    ifFalse: 0,
+    amountInspects: 0,
+  }
+  const monkey2 = {
+    id: 2,
+    items: [79, 60, 97],
+    divisor: 13,
+    ifTrue: 1,
+    ifFalse: 3,
+    amountInspects: 0,
+  }
 
-//   const monkey0 = {
-//     id: 0,
-//     items: [79, 98],
-//     divisor: 23,
-//     ifTrue: 2,
-//     ifFalse: 3,
-//     amountInspects: 0,
-//   }
-//   const monkey1 = {
-//     id: 1,
-//     items: [54, 65, 75, 74],
-//     divisor: 19,
-//     ifTrue: 2,
-//     ifFalse: 0,
-//     amountInspects: 0,
-//   }
-//   const monkey2 = {
-//     id: 2,
-//     items: [79, 68, 97],
-//     divisor: 13,
-//     ifTrue: 1,
-//     ifFalse: 3,
-//     amountInspects: 0,
-//   }
-//   assertEquals(3, monkeys.length)
-//   assertEquals([monkey0, monkey1, monkey2], ms)
-// })
+  assertEquals(3, monkeys.length)
+  assertEquals([monkey0, monkey1, monkey2], ms)
+  assertEquals([76, 7, 25], results)
+})
 
 const fileInput = Deno.readTextFileSync('./11_monkey-in-the-middle/input.txt')
 

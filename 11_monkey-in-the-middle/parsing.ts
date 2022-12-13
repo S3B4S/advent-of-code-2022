@@ -57,7 +57,6 @@ export interface Monkey {
   amountInspects: number
 }
 
-
 export const parseMonkey = liftAs<Monkey>(
   (monkeyId: number) => (startingItems: number[]) => (operation: (x: number) => number) => (divisor: number) => (ifTrue: number) => (ifFalse: number): Monkey => {
     return {
@@ -80,8 +79,5 @@ export const parseMonkey = liftAs<Monkey>(
 
 export const parseMonkeys = liftAs<Monkey[]>(
   (monkeys: Monkey[]) => monkeys,
-  many(liftAs(
-    (monkey: Monkey) => () => monkey,
-    many(token(parseMonkey)),
-  ))
+  many(token(parseMonkey)),
 )
