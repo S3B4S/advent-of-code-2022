@@ -84,6 +84,11 @@ export const solvePart1 = (input: string) => {
 }
 
 export const solvePart2 = (input: string) => {
+  const dividerPackages = [
+    [[2]],
+    [[6]],
+  ]
+
   const packets = input
     .trim()
     .split('\n')
@@ -92,13 +97,7 @@ export const solvePart2 = (input: string) => {
       const [res] = parseList(l)
       return res
     })
-  
-  const dividerPackages = [
-    [[2]],
-    [[6]],
-  ]
-
-  dividerPackages.forEach(dividerPacket => packets.push(dividerPacket))
+    .concat(dividerPackages)
 
   packets.sort((packetA, packetB) => {
     const res = areListsInRightOrder(packetA, packetB)
