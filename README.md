@@ -1,6 +1,6 @@
 # Advent of Code 2022 Solutions
 
-This repository contains my solutions for the [Advent of Code 2022 challenges](https://adventofcode.com/2022). The environment used is [deno](https://deno.land/).
+This repository contains my solutions for the [Advent of Code 2022 challenges](https://adventofcode.com/2022). The environment used is [Deno](https://deno.land/).
 
 ## Directory structure
 
@@ -10,7 +10,7 @@ In addition, the `/scripts` folder contains utility scripts that automate some t
 
 ## Installing Deno
 
-To install deno, follow the instructions on the [deno website](https://deno.land/manual@v1.28.3/getting_started/installation).
+To install Deno, follow the instructions on the [Deno website](https://deno.land/manual@v1.28.3/getting_started/installation).
 
 ## Usage with Deno
 
