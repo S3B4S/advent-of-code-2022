@@ -67,8 +67,8 @@ export const solvePart1 = (input: string) => {
   const pairs = input
     .trim()
     .split('\n\n')
-    .map(p => p.split('\n').map(x => {
-      const [res] = parseList(x.trim())
+    .map(p => p.split('\n').map(l => {
+      const [res] = parseList(l)
       return res
     }))
 
