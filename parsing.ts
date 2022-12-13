@@ -1,7 +1,7 @@
 import { monpar } from './deps.ts'
 const { liftAs, sentence, some, numeric, alt } = monpar
 
-export const parseNumber = liftAs(
+export const parseNumber = liftAs<number>(
   (numbers: string[]) => Number(numbers.join('')),
   some(numeric),
 )
