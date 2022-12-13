@@ -27,7 +27,7 @@ const exampleInput = `
 [1,[2,[3,[4,[5,6,0]]]],8,9]
 `
 
-const fileInput = Deno.readTextFileSync('./day-13/input.txt')
+const fileInput = Deno.readTextFileSync('./13_distress-signal/input.txt')
 
 Deno.test("Day 13 - Part 1 - Parsing 1", () => {
   assertEquals([1,1,3,1,1], parseList("[1,1,3,1,1]")[0])
