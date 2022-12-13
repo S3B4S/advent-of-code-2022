@@ -170,3 +170,5 @@ build/
 # Custom #
 ##########
 input.txt
+archive/
+.DS_Store
