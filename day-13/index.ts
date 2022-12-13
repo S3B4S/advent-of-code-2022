@@ -1,9 +1,32 @@
 import { parseNumber } from '../parsing.ts'
+import { sum } from 'utils'
 
 type RecList<T> = (T | RecList<T>)[]
 
-export const areListsInRightOrder = (xs: RecList<number>, ys: RecList<number>) => {
-  return false
+export const areListsInRightOrder = (left: RecList<number> | number, right: RecList<number> | number): boolean | undefined => {
+  // Base cases
+  // console.log({left, right})
+  if (left === undefined && right !== undefined) return true
+  if (left !== undefined && right === undefined) return false
+  if (left === undefined && right === undefined) return undefined
+
+  if (typeof left === "number" && typeof right === "number") {
+    return left === right ? undefined : left < right
+  }
+  if (typeof left === "number") return areListsInRightOrder([left], right)
+  if (typeof right === "number") return areListsInRightOrder(left, [right])
+  
+  // if (left.length === 0 && right.length > 0) return false
+  
+  // console.log({left, right})
+  // Recursive, checking all comparisons
+  // Get index for biggest list
+  const maxLength = Math.max(left.length, right.length);
+  for (let i = 0; i < maxLength; i++) {
+    const res = areListsInRightOrder(left[i], right[i])
+    if (res === undefined) continue
+    return res
+  }
 }
 
 const c = {
@@ -49,8 +72,23 @@ export const parseList = (input: string): [RecList<number>, string] => {
 }
 
 export const solvePart1 = (input: string) => {
-  console.log(parseList(input))
-  return 0
+  const pairs = input
+    .trim()
+    .split('\n\n')
+    .map(p => p.split('\n').map(x => {
+      const [res] = parseList(x.trim())
+      return res
+    }))
+
+  const res = pairs.map(([xs, ys]) => areListsInRightOrder(xs, ys))
+  
+  let count = 0
+  for (let i = 0; i < res.length; i++) {
+    const element = res[i];
+    if (element) count += i + 1
+  }
+
+  return count
 }
 
 export const solvePart2 = (input: string) => {

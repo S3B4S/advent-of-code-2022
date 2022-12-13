@@ -33,11 +33,9 @@ Deno.test("Day 13 - Part 1 - Parsing 1", () => {
   assertEquals([1,1,3,1,1], parseList("[1,1,3,1,1]")[0])
 })
 
-
 Deno.test("Day 13 - Part 1 - Parsing 2", () => {
   assertEquals([[1],[2,3,4]], parseList("[[1],[2,3,4]]")[0])
 })
-
 
 Deno.test("Day 13 - Part 1 - Parsing 3", () => {
   assertEquals([[8,7,6]], parseList("[[8,7,6]]")[0])
@@ -51,14 +49,20 @@ Deno.test("Day 13 - Part 1 - Compare 1", () => {
   assertEquals(true, areListsInRightOrder([1,1,3,1,1], [1,1,5,1,1]))
 })
 
-
 Deno.test("Day 13 - Part 1 - Compare 2", () => {
   assertEquals(true, areListsInRightOrder([[1],[2,3,4]], [[1],4]))
 })
 
-
 Deno.test("Day 13 - Part 1 - Compare 3", () => {
   assertEquals(false, areListsInRightOrder([9], [[8,7,6]]))
+})
+
+Deno.test("Day 13 - Part 1 - Compare 4 - empty list", () => {
+  assertEquals(true, areListsInRightOrder([], [3]))
+})
+
+Deno.test("Day 13 - Part 1 - Compare 4 - empty list 2", () => {
+  assertEquals(false, areListsInRightOrder([3], []))
 })
 
 Deno.test("Day 13 - Part 1 - Example input", () => {
