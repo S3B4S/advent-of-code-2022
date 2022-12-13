@@ -172,3 +172,4 @@ build/
 input.txt
 archive/
 .DS_Store
+~*
