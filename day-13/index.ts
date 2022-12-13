@@ -1,27 +1,19 @@
 import { parseNumber } from '../parsing.ts'
-import { sum } from 'utils'
+import { multiply } from 'utils'
 
 type RecList<T> = (T | RecList<T>)[]
 
 export const areListsInRightOrder = (left: RecList<number> | number, right: RecList<number> | number): boolean | undefined => {
   // Base cases
-  // console.log({left, right})
   if (left === undefined && right !== undefined) return true
   if (left !== undefined && right === undefined) return false
   if (left === undefined && right === undefined) return undefined
 
-  if (typeof left === "number" && typeof right === "number") {
-    return left === right ? undefined : left < right
-  }
+  if (typeof left === "number" && typeof right === "number") return left === right ? undefined : left < right
   if (typeof left === "number") return areListsInRightOrder([left], right)
   if (typeof right === "number") return areListsInRightOrder(left, [right])
   
-  // if (left.length === 0 && right.length > 0) return false
-  
-  // console.log({left, right})
-  // Recursive, checking all comparisons
-  // Get index for biggest list
-  const maxLength = Math.max(left.length, right.length);
+  const maxLength = Math.max(left.length, right.length)
   for (let i = 0; i < maxLength; i++) {
     const res = areListsInRightOrder(left[i], right[i])
     if (res === undefined) continue
@@ -92,5 +84,34 @@ export const solvePart1 = (input: string) => {
 }
 
 export const solvePart2 = (input: string) => {
-  return 0
+  const packets = input
+    .trim()
+    .split('\n')
+    .filter(l => l !== "")
+    .map(l => {
+      const [res] = parseList(l)
+      return res
+    })
+  
+  const dividerPackages = [
+    [[2]],
+    [[6]],
+  ]
+
+  dividerPackages.forEach(dividerPacket => packets.push(dividerPacket))
+
+  packets.sort((packetA, packetB) => {
+    const res = areListsInRightOrder(packetA, packetB)
+    return res ? -1 : 1
+  })
+
+  const checkDividerPackage = (id: number) => (packet: RecList<number>) => Array.isArray(packet)
+    && packet.length === 1
+    && Array.isArray(packet[0])      
+    && packet[0].length === 1      
+    && packet[0][0] === id
+  
+  return dividerPackages
+    .map(dividerPacket => packets.findIndex(checkDividerPackage(dividerPacket[0][0])) + 1)
+    .reduce(multiply)
 }

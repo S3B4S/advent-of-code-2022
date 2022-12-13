@@ -14,6 +14,7 @@ export const pipe = <T extends UnaryFn[]>(fns: T, val: any): ReturnType<ArrayLas
 }
 
 export const sum = (a: number, b: number) => a + b
+export const multiply = (a: number, b: number) => a * b
 
 /**
  * Splits a given list in chunks of size N.
