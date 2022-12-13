@@ -40,7 +40,7 @@ $ runhaskell <script>.hs
 
 ## Adding inputs
 
-If you want to add your own inputs, you can do so. Each test file will read from a sibling `input.txt`. For example, tests run in `./04_camp-cleanup` will attempt to read the input from `./04_camp-cleanup/input.txt`. So, you can add an `input.txt` there and insert your own inputs. You can find a script in the `/scripts` folder that can help you out with downloading the AoC inputs and put them in `index.ts` files in the correct location(s) automatically.
+If you want to add your own inputs, you can do so. Each test file will read from a sibling `input.txt`. For example, tests run in `./04_camp-cleanup` will attempt to read the input from `./04_camp-cleanup/input.txt`. So, you can add an `input.txt` there and insert your own inputs. You can find a script in the `/scripts` folder that can help you out with downloading the AoC inputs and put them in `input.txt` files in the correct location(s) automatically.
 
 ---
 
