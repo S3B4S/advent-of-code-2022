@@ -1,5 +1,5 @@
 import { dropWhile, map, takeWhile, turn90DegClockWise } from '../utilts.ts'
-import { flow, pipe, not, filter, isEmptyString } from '../deps.ts'
+import { flow, pipe, not, filter, isEmptyString } from "deps"
 
 type Containers = string[][]
 

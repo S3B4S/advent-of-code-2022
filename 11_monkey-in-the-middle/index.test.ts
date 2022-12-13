@@ -1,4 +1,4 @@
-import { assertEquals, monpar } from "../deps.ts"
+import { assertEquals, monpar } from "deps"
 import { 
   parseMonkeyId,
   parseStartingItems,

@@ -1,4 +1,4 @@
-import { assertEquals } from "../deps.ts"
+import { assertEquals } from "deps"
 import { areListsInRightOrder, parseList, solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = `

@@ -1,5 +1,5 @@
 import { sliding } from '../utilts.ts'
-import { pipe } from '../deps.ts'
+import { pipe } from "deps"
 
 const uniqueCharsOnly = (input: string) => {
   const found: Record<string, boolean> = {}

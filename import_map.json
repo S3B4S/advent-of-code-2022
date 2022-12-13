@@ -1,5 +1,6 @@
 {
   "imports": {
-    "utils": "./utilts.ts"
+    "utils": "./utilts.ts",
+    "deps": "./deps.ts"
   }
 }

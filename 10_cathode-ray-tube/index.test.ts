@@ -1,4 +1,4 @@
-import { assertEquals } from "../deps.ts"
+import { assertEquals } from "deps"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = Deno.readTextFileSync('./10_cathode-ray-tube/large-example-input.txt')

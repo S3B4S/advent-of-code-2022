@@ -10,7 +10,7 @@ export const solvePart2 = (input: string) => {
 }
 `
 
-const testFile = day => `import { assertEquals } from "../deps.ts"
+const testFile = day => `import { assertEquals } from "deps"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = \`

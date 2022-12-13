@@ -1,6 +1,6 @@
 import { lines, range } from '../utilts.ts'
 import { parseMonkeys } from './parsing.ts'
-import { monpar } from '../deps.ts'
+import { monpar } from "deps"
 const { unpack } = monpar
 
 interface Monkey {
