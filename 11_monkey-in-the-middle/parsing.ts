@@ -1,6 +1,6 @@
 import { parseNumber, parseNumbersWithDelimiter } from '../parsing.ts'
 import { monpar } from '../deps.ts'
-const { liftAs, sentence, take, char, token, sat, many, logId } = monpar
+const { liftAs, sentence, take, char, token, sat, many } = monpar
 
 export const parseMonkeyId = liftAs(
   () => (n: string) => () => Number(n),
