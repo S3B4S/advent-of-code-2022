@@ -74,7 +74,6 @@ export const solvePart1 = (input: string) => {
     }
   }
 
-  
   // For entire map, if there is an empty spot, insert space
   for (let row = 0; row < map.length; row++) {
     if (!map[row]) map[row] = []
@@ -142,5 +141,102 @@ const surroundByCoordinates = (map: any[][]) => [
 const stringifyMap = (map: any[][]) => map.map(row => row.join('')).join('\n')
 
 export const solvePart2 = (input: string) => {
-  return 0
+  const ranges = unpack(parseInput)(input)!
+  const map: string[][] = []
+
+  let maxAmountColumns = 0
+
+  for (const range of ranges) {
+    let currentCoordinate = range[0]
+    let destinationIndex = 1
+
+    while (destinationIndex < range.length) {
+      while (!equal(currentCoordinate, range[destinationIndex])) {
+        maxAmountColumns = Math.max(maxAmountColumns, currentCoordinate.x + 1)
+
+        // Draw this wall
+        if (!map[currentCoordinate.y]) map[currentCoordinate.y] = []
+        map[currentCoordinate.y][currentCoordinate.x] = Characters.WhiteRetroBlock
+        currentCoordinate = moveCloser(currentCoordinate, range[destinationIndex])
+      }
+      
+      // Draw when the coordinate has met the one they're pursuing
+      if (!map[currentCoordinate.y]) map[currentCoordinate.y] = []
+      map[currentCoordinate.y][currentCoordinate.x] = Characters.WhiteRetroBlock
+      destinationIndex++
+    }
+  }
+
+  // For entire map, if there is an empty spot, insert space
+  for (let row = 0; row < map.length; row++) {
+    if (!map[row]) map[row] = []
+    for (let column = 0; column < maxAmountColumns; column++) {
+      if (!map[row][column]) map[row][column] = Characters.Dot
+    }
+  }
+
+  // Now add another row that's entirely empty
+  map[map.length] = Array.from({ length: maxAmountColumns }).map(() => Characters.Dot)
+
+  // And then add another row that's the floor
+  map[map.length] = Array.from({ length: maxAmountColumns }).map(() => Characters.WhiteRetroBlock)
+
+  console.log(stringifyMap(map))
+
+  // Start dispensing sand
+  let sandLocation = SAND_DISPENSER_COORDINATE
+  let sandIstraversing = true
+  let amountSand = 0
+
+  map[SAND_DISPENSER_COORDINATE.y][SAND_DISPENSER_COORDINATE.x] = Characters.Plus
+  const freeSpaces = [Characters.Dot, Characters.Space, Characters.Star]
+
+  const columnToFillAbyss = Array.from({ length: map.length }).map(() => Characters.Dot)
+  columnToFillAbyss[columnToFillAbyss.length - 1] = Characters.WhiteRetroBlock
+
+  while(true) {
+    while (sandIstraversing) {
+      // Check directly beneath
+      if (freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x])) {
+        sandLocation = { ...sandLocation, y: sandLocation.y + 1 }
+        map[sandLocation.y][sandLocation.x] = Characters.Star
+        continue
+      }
+
+      // Check to the left
+      if (freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x - 1])) {
+        sandLocation = { x: sandLocation.x - 1, y: sandLocation.y + 1 }
+        map[sandLocation.y][sandLocation.x] = Characters.Star
+        continue
+      }
+
+      // Check to the right
+      // If the right has an abyss, we need to add another column
+      if (map[sandLocation.y][sandLocation.x + 1] === undefined) {
+        for (let row = 0; row < map.length; row++) {
+          map[row] = [...map[row], columnToFillAbyss[row]]
+        }
+        console.log(stringifyMap(map))
+      }
+      
+      if (freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x + 1])) {
+        sandLocation = { x: sandLocation.x + 1, y: sandLocation.y + 1 }
+        map[sandLocation.y][sandLocation.x] = Characters.Star
+        continue
+      }
+
+      // Once the sand can't go any further, and we are at the sand dispenser location, we end the iterations
+      if (equal(sandLocation, SAND_DISPENSER_COORDINATE)) {
+        // console.log(stringifyMap(map))
+        return amountSand + 1
+      }
+
+      // No options to traverse further, save locaiton and reset
+      map[sandLocation.y][sandLocation.x] = Characters.HashTag
+      sandIstraversing = false
+    }
+    sandLocation = SAND_DISPENSER_COORDINATE
+    sandIstraversing = true
+    amountSand++
+  }
 }
