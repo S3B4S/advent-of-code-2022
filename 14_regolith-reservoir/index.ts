@@ -57,7 +57,7 @@ export const solvePart1 = (input: string) => {
     let currentCoordinate = range[0]
     let destinationIndex = 1
 
-    while (!equal(currentCoordinate, range.at(-1)!)) {
+    while (destinationIndex < range.length) {
       while (!equal(currentCoordinate, range[destinationIndex])) {
         maxAmountColumns = Math.max(maxAmountColumns, currentCoordinate.x + 1)
 
@@ -75,8 +75,6 @@ export const solvePart1 = (input: string) => {
   }
 
   
-  // console.log(ranges.length)
-
   // For entire map, if there is an empty spot, insert space
   for (let row = 0; row < map.length; row++) {
     if (!map[row]) map[row] = []
@@ -91,26 +89,18 @@ export const solvePart1 = (input: string) => {
   let amountSand = 0
 
   map[SAND_DISPENSER_COORDINATE.y][SAND_DISPENSER_COORDINATE.x] = Characters.Plus
-
   const freeSpaces = [Characters.Dot, Characters.Space, Characters.Star]
-
-  // console.log(stringifyMap(surroundByCoordinates(map)))
 
   while(true) {
     while (sandIstraversing) {
       // If the next row is undefined, we've reached abyss
-      if (map[sandLocation.y + 1] === undefined) {
-        console.log(stringifyMap(surroundByCoordinates(map)))
-        return amountSand
-      }
-
+      if (map[sandLocation.y + 1] === undefined) return amountSand
+      
       // We've also reached abyss if the right column is undefined, & bot + left are full
       if (map[sandLocation.y][sandLocation.x + 1] === undefined
         && !freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x])
         && !freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x - 1])
       ) {
-        // console.log('hallelujah')
-        console.log(stringifyMap(surroundByCoordinates(map)))
         return amountSand
       }
 
@@ -138,14 +128,6 @@ export const solvePart1 = (input: string) => {
     sandLocation = SAND_DISPENSER_COORDINATE
     sandIstraversing = true
     amountSand++
-    // if (amountSand % 200 === 0) {
-    //   console.log(stringifyMap(map.map((row, i) => [i, ...row])))
-    //   console.log()
-    // }
-    // I guessed 1419, too high
-    // 1418
-    // 1417
-    // 1333 aint it either
   }
 }
 
