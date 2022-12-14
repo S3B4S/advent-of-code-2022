@@ -136,3 +136,8 @@ export const addLists = (xs: number[], ys: number[]) => zip(xs, ys).map(([x, y])
 export const range = (start: number, end: number) => Array.from({ length: Math.abs(end - start) }, (_, i) => start < end ? i + start : Math.abs(i - start))
 
 export const lines = (input: string) => input.trim().split('\n')
+
+export const Characters = {
+  WhiteBlock: "█",
+  Space: " ",
+}
