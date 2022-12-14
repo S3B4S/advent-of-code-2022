@@ -138,6 +138,11 @@ export const range = (start: number, end: number) => Array.from({ length: Math.a
 export const lines = (input: string) => input.trim().split('\n')
 
 export const Characters = {
-  WhiteBlock: "█",
+  WhiteRetroBlock: "█",  
   Space: " ",
+  Dot: ".",
+  HashTag: "#",
+  Tilde: "~",
+  Star: "*",
+  Plus: "+",
 }
