@@ -41,13 +41,13 @@ Sensor at x=10, y=20: closest beacon is at x=10, y=16
   assertEquals([{ sensor: { x: 2, y: 18 }, beacon: { x: 2, y: 15 }}, { sensor: { x: 10, y: 20 }, beacon: { x: 10, y: 16 }}], unpack(parseInput)(input))
 })
 
-Deno.test("Day 15 - Part 1 - Example input", () => {
-  assertEquals(0, solvePart1(exampleInput))
-})
-
-// Deno.test("Day 15 - Part 1 - File input", () => {
-//   assertEquals(0, solvePart1(fileInput))
+// Deno.test("Day 15 - Part 1 - Example input", () => {
+//   assertEquals(0, solvePart1(exampleInput))
 // })
+
+Deno.test("Day 15 - Part 1 - File input", () => {
+  assertEquals(0, solvePart1(fileInput))
+})
 
 Deno.test("Day 15 - Part 2 - Example input", () => {
   assertEquals(0, solvePart2(exampleInput))

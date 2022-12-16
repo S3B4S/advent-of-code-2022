@@ -50,40 +50,40 @@ export const parseInput = liftAs<SensorBeaconCoordinates[]>(
 export const solvePart1 = (input: string) => {
   const coordinates = unpack(parseInput)(input)!
 
-  const bounds = {
-    x: {
-      max: Number.MIN_VALUE,
-      min: Number.MAX_VALUE,
-    },
-    y: {
-      max: Number.MIN_VALUE,
-      min: Number.MAX_VALUE,
-    }
-  }
+  // const bounds = {
+  //   x: {
+  //     max: Number.MIN_VALUE,
+  //     min: Number.MAX_VALUE,
+  //   },
+  //   y: {
+  //     max: Number.MIN_VALUE,
+  //     min: Number.MAX_VALUE,
+  //   }
+  // }
 
   // Find bounds
-  for (const { beacon, sensor } of coordinates) {
-    bounds.x.max = Math.max(...[bounds.x.max, beacon.x, sensor.x])
-    bounds.x.min = Math.min(...[bounds.x.min, beacon.x, sensor.x, 0])
+  // for (const { beacon, sensor } of coordinates) {
+  //   bounds.x.max = Math.max(...[bounds.x.max, beacon.x, sensor.x])
+  //   bounds.x.min = Math.min(...[bounds.x.min, beacon.x, sensor.x, 0])
 
-    bounds.y.max = Math.max(...[bounds.y.max, beacon.y, sensor.y])
-    bounds.y.min = Math.min(...[bounds.y.min, beacon.y, sensor.y, 0])
-  }
+  //   bounds.y.max = Math.max(...[bounds.y.max, beacon.y, sensor.y])
+  //   bounds.y.min = Math.min(...[bounds.y.min, beacon.y, sensor.y, 0])
+  // }
 
   // Update coordinates by shifting
-  const shifted = coordinates.map(coordinate => ({
-    sensor: {
-      x: coordinate.sensor.x + Math.abs(bounds.x.min),
-      y: coordinate.sensor.y + Math.abs(bounds.y.min),
-    },
-    beacon: {
-      x: coordinate.beacon.x + Math.abs(bounds.x.min),
-      y: coordinate.beacon.y + Math.abs(bounds.y.min),
-    },
-  }))
+  // const shifted = coordinates.map(coordinate => ({
+  //   sensor: {
+  //     x: coordinate.sensor.x + Math.abs(bounds.x.min),
+  //     y: coordinate.sensor.y + Math.abs(bounds.y.min),
+  //   },
+  //   beacon: {
+  //     x: coordinate.beacon.x + Math.abs(bounds.x.min),
+  //     y: coordinate.beacon.y + Math.abs(bounds.y.min),
+  //   },
+  // }))
 
   const map: string[][] = []
-  for (const { beacon, sensor } of shifted) {
+  for (const { beacon, sensor } of coordinates) {
     if (!map[beacon.y]) map[beacon.y] = []
     map[beacon.y][beacon.x] = "B"
     
@@ -92,49 +92,48 @@ export const solvePart1 = (input: string) => {
   }
 
   fillEmptySpacesWith(map, Characters.Dot)
-  
-  // Draw area of sensor at (10, 7) (after shifting)
-  const bs = shifted.find(bs => bs.sensor.x === 10 && bs.sensor.y === 7)!
 
-  // Draw lower triangle
-  let distance = manhattanDistance(bs.sensor, bs.beacon)
-  let y = bs.sensor.y
+  for (const bs of coordinates) {
+    // Draw lower triangle
+    let distance = manhattanDistance(bs.sensor, bs.beacon)
+    let y = bs.sensor.y
 
-  // Draw last point (the lowest)
-  if (map[bs.sensor.y + distance] && map[bs.sensor.y + distance][bs.sensor.x]) {
-    map[bs.sensor.y + distance][bs.sensor.x] = Characters.HashTag
-  }
-
-  while (distance !== 0) {
-    for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
-      if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
-        map[y][x] = Characters.HashTag
+    // Draw last point (the lowest)
+    if (map[bs.sensor.y + distance] && map[bs.sensor.y + distance][bs.sensor.x]) {
+      map[bs.sensor.y + distance][bs.sensor.x] = Characters.HashTag
     }
 
-    distance--
-    y++
-  }
+    while (distance !== 0) {
+      for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
+        if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
+          map[y][x] = Characters.HashTag
+      }
 
-  // Draw upper triangle
-  distance = manhattanDistance(bs.sensor, bs.beacon)
-  y = bs.sensor.y
-
-  // Draw first point (the lowest)
-  if (map[bs.sensor.y - distance] && map[bs.sensor.y + distance][bs.sensor.x]) {
-    map[bs.sensor.y - distance][bs.sensor.x] = Characters.HashTag
-  }
-
-  while (distance !== 0) {
-    for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
-      if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
-        map[y][x] = Characters.HashTag
+      distance--
+      y++
     }
 
-    distance--
-    y--
+    // Draw upper triangle
+    distance = manhattanDistance(bs.sensor, bs.beacon)
+    y = bs.sensor.y
+
+    // Draw first point (the lowest)
+    if (map[bs.sensor.y - distance] && map[bs.sensor.y - distance][bs.sensor.x]) {
+      map[bs.sensor.y - distance][bs.sensor.x] = Characters.HashTag
+    }
+
+    while (distance !== 0) {
+      for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
+        if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
+          map[y][x] = Characters.HashTag
+      }
+
+      distance--
+      y--
+    }
   }
 
-  console.log(stringifyMap(surroundByCoordinates(map)))
+  // console.log(stringifyMap(surroundByCoordinates(map)))
 
   return 0
 }
