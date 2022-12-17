@@ -1,6 +1,7 @@
 import { parseNumber } from '../parsing.ts'
 import { lines } from 'utils'
 import { monpar } from 'deps'
+import produce from "https://cdn.skypack.dev/immer@8.0.1?dts"
 const { take, liftAs, many, sentence, alt, unpack } = monpar
 
 
@@ -56,7 +57,7 @@ export const parseLine = liftAs<Node>(
 
 export const solvePart1 = (input: string) => {
   const graph: Graph = {}
-  let startingLocation: string | undefined = undefined
+  let startingLocation: string | undefined = "AA"
 
   for (const line of lines(input)) {
     const node = unpack(parseLine)(line)!
@@ -67,73 +68,64 @@ export const solvePart1 = (input: string) => {
 
   if (!startingLocation)
     return new Error("No starting location found")
-  
-  let currentTime = TIME
 
-  // This cache holds the information for the distance to all other nodes
-  // for a given starting location
-  const dijkstraCache: Record<NodeId, ReturnType<typeof dijkstra>> = {}
+  const dCache = dijkstraMmeo(graph)
+  const optimal = findOptimal(graph, startingLocation, TIME, dCache)
 
-  let totalReleased = 0
-  while (currentTime > 0) {
-
-    if (!dijkstraCache[startingLocation]) dijkstraCache[startingLocation] = dijkstra(graph, startingLocation)
-
-    // Calculate the most optimal gain at this point in time
-    let optimalChoice: {
-      amountValveRelease: number,
-      decider?: number,
-      timeLoss?: number,
-      node?: Node,
-    } = {
-      amountValveRelease: 0,
-      timeLoss: undefined,
-      node: undefined
-    }
-
-    for (const destination of Object.values(graph)) {
-      if (!dijkstraCache[destination.source]) dijkstraCache[destination.source] = dijkstra(graph, destination.source)
-      if (dijkstraCache[startingLocation][destination.source] + 1 > currentTime) continue
-
-      // @TODO keep in mind the time left can be smaller than time to reach location
-      if (destination.source === startingLocation) continue
-
-      const difference = dijkstraDifference(dijkstraCache[startingLocation], dijkstraCache[destination.source])
-      const deltaCost = Object.entries(difference).reduce((acc, [dest, difference]) => acc + (-1) * difference * graph[dest].flowRate, 0)
-      // Time to unlock = time to reach location + time to open valve (1 min)
-      const timeToUnlock = dijkstraCache[startingLocation][destination.source] + 1
-      // This is the amount of time the valve would release for
-      const timeLeft = currentTime - timeToUnlock
-
-      const amountValveRelease = timeLeft * destination.flowRate 
-      const decider = amountValveRelease + deltaCost
-
-      if (!optimalChoice.node || !optimalChoice.decider || optimalChoice.decider < decider) {
-        optimalChoice = {
-          decider,
-          amountValveRelease,
-          timeLoss: timeToUnlock,
-          node: destination
-        }
-      }
-    }
-
-    if (optimalChoice.node && optimalChoice.timeLoss) {
-      // Travel to optimal choice
-      currentTime -= optimalChoice.timeLoss
-      totalReleased += optimalChoice.amountValveRelease
-      startingLocation = optimalChoice.node.source
-      graph[optimalChoice.node!.source].flowRate = 0
-    } else {
-      // There was no optimal choice found in the time remaining, so we can terminate the loop as well
-      break
-    }
-  }
-
-  console.log(totalReleased)
-  return totalReleased
+  console.log(optimal)
+  return 0
 }
 
+const findOptimal = (graph: Graph, startingLocation: NodeId, timeLeft: number, dijkstra: ReturnType<typeof dijkstraMmeo>): number => {
+  // Calculate the gain for each node
+  const result: { destination: NodeId, amountValveRelease: number, timeSpent: number }[] = []
+
+  for (const destination of Object.values(graph)) {
+    if (dijkstra(startingLocation)[destination.source] + 1 > timeLeft) continue
+    if (destination.flowRate === 0) continue
+    if (destination.source === startingLocation) continue
+
+    // Time to unlock = time to reach location + time to open valve (1 min)
+    const timeToUnlock = dijkstra(startingLocation)[destination.source] + 1
+    // This is the amount of time the valve would release for
+    const timeAfter = timeLeft - timeToUnlock
+
+    const amountValveRelease = timeAfter * destination.flowRate
+    result.push({
+      destination: destination.source,
+      amountValveRelease,
+      timeSpent: timeToUnlock
+    })
+  }
+
+  if (result.length === 0) {
+    return 0
+  }
+
+  // This is kind of a hacky guess, but I'm sorting the best amounts
+  // and then grabbing the top 10 for recrusion. My hope was that the optimal
+  // answer would always be in the top 10 distances at each step so I could cut down
+  // on computing time
+  result.sort((a, b) => b.amountValveRelease - a.amountValveRelease)
+  const amounts = result.slice(0, 10).map(res => {
+    const copyGraph = produce(graph, (draft: Graph) => {
+      draft[res.destination].flowRate = 0
+    })
+    return res.amountValveRelease + findOptimal(copyGraph, res.destination, timeLeft - res.timeSpent, dijkstra)
+  })
+  
+  return Math.max(...amounts)
+}
+
+const dijkstraMmeo = (graph: Graph) => (startingNodeId: NodeId): Record<NodeId, number> => {
+  const dijkstraCache: Record<NodeId, ReturnType<typeof dijkstra>> = {}
+
+  if (dijkstraCache[startingNodeId]) return dijkstraCache[startingNodeId]
+
+  const d = dijkstra(graph, startingNodeId)
+  dijkstraCache[startingNodeId] = d
+  return d
+}
 
 // All edges are weight 1
 type DijkstraTable = Record<NodeId, number>
@@ -193,15 +185,15 @@ export const solvePart2 = (input: string) => {
   return 0
 }
 
-solvePart1(`
-Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
-Valve BB has flow rate=13; tunnels lead to valves CC, AA
-Valve CC has flow rate=2; tunnels lead to valves DD, BB
-Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
-Valve EE has flow rate=3; tunnels lead to valves FF, DD
-Valve FF has flow rate=0; tunnels lead to valves EE, GG
-Valve GG has flow rate=0; tunnels lead to valves FF, HH
-Valve HH has flow rate=22; tunnel leads to valve GG
-Valve II has flow rate=0; tunnels lead to valves AA, JJ
-Valve JJ has flow rate=21; tunnel leads to valve II
-`)
+// solvePart1(`
+// Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
+// Valve BB has flow rate=13; tunnels lead to valves CC, AA
+// Valve CC has flow rate=2; tunnels lead to valves DD, BB
+// Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
+// Valve EE has flow rate=3; tunnels lead to valves FF, DD
+// Valve FF has flow rate=0; tunnels lead to valves EE, GG
+// Valve GG has flow rate=0; tunnels lead to valves FF, HH
+// Valve HH has flow rate=22; tunnel leads to valve GG
+// Valve II has flow rate=0; tunnels lead to valves AA, JJ
+// Valve JJ has flow rate=21; tunnel leads to valve II
+// `)
