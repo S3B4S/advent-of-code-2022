@@ -4,7 +4,6 @@ import { monpar } from 'deps'
 import produce from "https://cdn.skypack.dev/immer@8.0.1?dts"
 const { take, liftAs, many, sentence, alt, unpack } = monpar
 
-
 type NodeId = string
 
 interface Node {
@@ -15,7 +14,9 @@ interface Node {
 
 type Graph = Record<string, Node>
 
-const TIME = 30 // minutes
+const TIME_PART_1 = 30 // minutes
+const TIME_PART_2 = 26 // minutes
+const STARTING_LOCATION = "AA"
 
 const takeTwo = liftAs(
   (char: string) => (char2: string) => char + char2,
@@ -57,23 +58,16 @@ export const parseLine = liftAs<Node>(
 
 export const solvePart1 = (input: string) => {
   const graph: Graph = {}
-  let startingLocation: string | undefined = "AA"
 
   for (const line of lines(input)) {
     const node = unpack(parseLine)(line)!
-    if (!startingLocation) startingLocation = node.source
-
     graph[node.source] = node
   }
 
-  if (!startingLocation)
-    return new Error("No starting location found")
-
   const dCache = dijkstraMmeo(graph)
-  const optimal = findOptimal(graph, startingLocation, TIME, dCache)
+  const optimal = findOptimal(graph, STARTING_LOCATION, TIME_PART_1, dCache)
 
-  console.log(optimal)
-  return 0
+  return optimal
 }
 
 const findOptimal = (graph: Graph, startingLocation: NodeId, timeLeft: number, dijkstra: ReturnType<typeof dijkstraMmeo>): number => {
@@ -102,10 +96,7 @@ const findOptimal = (graph: Graph, startingLocation: NodeId, timeLeft: number, d
     return 0
   }
 
-  // This is kind of a hacky guess, but I'm sorting the best amounts
-  // and then grabbing the top 10 for recrusion. My hope was that the optimal
-  // answer would always be in the top 10 distances at each step so I could cut down
-  // on computing time
+  // Approximation
   result.sort((a, b) => b.amountValveRelease - a.amountValveRelease)
   const amounts = result.slice(0, 10).map(res => {
     const copyGraph = produce(graph, (draft: Graph) => {
@@ -122,9 +113,8 @@ const dijkstraMmeo = (graph: Graph) => (startingNodeId: NodeId): Record<NodeId, 
 
   if (dijkstraCache[startingNodeId]) return dijkstraCache[startingNodeId]
 
-  const d = dijkstra(graph, startingNodeId)
-  dijkstraCache[startingNodeId] = d
-  return d
+  dijkstraCache[startingNodeId] = dijkstra(graph, startingNodeId)
+  return dijkstraCache[startingNodeId]
 }
 
 // All edges are weight 1
@@ -168,6 +158,9 @@ const dijkstra = (graph: Graph, startingNodeId: NodeId): Record<NodeId, number> 
 }
 
 /**
+ * I was going to use this for my first approach, which was going to involve some cost function
+ * to punish for traveling too far, but I couldnt quite figure out the details.
+ * 
  * Calculates the difference when you move from 1 location to the other,
  * say da = { a: 5 }, and db = { a: 7 }, that means that by moving to db,
  * you're increasing the distance to a by 2, so this function returns
@@ -177,23 +170,74 @@ const dijkstra = (graph: Graph, startingNodeId: NodeId): Record<NodeId, number> 
  * @param da Starting location
  * @param db Destination location
  */
-const dijkstraDifference = (da: DijkstraTable, db: DijkstraTable) => {
+const _dijkstraDifference = (da: DijkstraTable, db: DijkstraTable) => {
   return Object.fromEntries(Object.entries(db).map(([destination, cost]) => [destination, cost - da[destination]]))
 }
 
 export const solvePart2 = (input: string) => {
-  return 0
+  // First have the human see how far they can get in 26 minutes,
+  // Then with that updated graph, have the elephant go through it
+  const graph: Graph = {}
+
+  for (const line of lines(input)) {
+    const node = unpack(parseLine)(line)!
+    graph[node.source] = node
+  }
+
+  const dCache = dijkstraMmeo(graph)
+  // First human goes through
+  const optimalHuman = findOptimalIncludeGraph(graph, STARTING_LOCATION, TIME_PART_2, dCache)
+  // Then the elephant goes through, note that we use the graph as it's left behind by the human
+  const optimalElephant = findOptimalIncludeGraph(optimalHuman[0], STARTING_LOCATION, TIME_PART_2, dCache)
+
+  return optimalHuman[1] + optimalElephant[1]
 }
 
-// solvePart1(`
-// Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
-// Valve BB has flow rate=13; tunnels lead to valves CC, AA
-// Valve CC has flow rate=2; tunnels lead to valves DD, BB
-// Valve DD has flow rate=20; tunnels lead to valves CC, AA, EE
-// Valve EE has flow rate=3; tunnels lead to valves FF, DD
-// Valve FF has flow rate=0; tunnels lead to valves EE, GG
-// Valve GG has flow rate=0; tunnels lead to valves FF, HH
-// Valve HH has flow rate=22; tunnel leads to valve GG
-// Valve II has flow rate=0; tunnels lead to valves AA, JJ
-// Valve JJ has flow rate=21; tunnel leads to valve II
-// `)
+// All edges are weight 1
+// We're also returning the graph state here
+const findOptimalIncludeGraph = (graph: Graph, startingLocation: NodeId, timeLeft: number, dijkstra: ReturnType<typeof dijkstraMmeo>): [Graph, number] => {
+  // Calculate the gain for each node
+  const choices: { destination: NodeId, amountValveRelease: number, timeSpent: number }[] = []
+
+  for (const destination of Object.values(graph)) {
+    if (dijkstra(startingLocation)[destination.source] + 1 >= timeLeft) continue
+    if (destination.flowRate === 0) continue
+    if (destination.source === startingLocation) continue
+
+    // Time to unlock = time to reach location + time to open valve (1 min)
+    const timeToUnlock = dijkstra(startingLocation)[destination.source] + 1
+    // This is the amount of time the valve would release for
+    const timeAfter = timeLeft - timeToUnlock
+
+    const amountValveRelease = timeAfter * destination.flowRate
+    choices.push({
+      destination: destination.source,
+      amountValveRelease,
+      timeSpent: timeToUnlock
+    })
+  }
+
+  if (choices.length === 0) {
+    return [graph, 0]
+  }
+
+  // Approximation
+  choices.sort((a, b) => b.amountValveRelease - a.amountValveRelease)
+  const result = choices.slice(0, 15).map(choice => {
+    const copyGraph = produce(graph, (draft: Graph) => {
+      draft[choice.destination].flowRate = 0
+    })
+    const recResult = findOptimalIncludeGraph(copyGraph, choice.destination, timeLeft - choice.timeSpent, dijkstra)
+    return [recResult[0], choice.amountValveRelease + recResult[1]] as [Graph, number]
+  })
+
+  let max: [Graph, number] = [{}, Number.MIN_VALUE];
+
+  for (const res of result) {
+    if (max[1] < res[1]) {
+      max = res
+    }
+  }
+  
+  return max
+}
