@@ -1,4 +1,4 @@
-import { countBy, lines } from '../utilts.ts'
+import { lines } from '../utilts.ts'
 
 type Coordinate = [
   number, // x
