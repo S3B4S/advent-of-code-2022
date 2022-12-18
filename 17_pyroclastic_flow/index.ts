@@ -1,6 +1,6 @@
 import { addLists, Characters, range } from "../utilts.ts"
 
-export enum Move { Left, Right, Up }
+export enum Move { Left = "L", Right = "R", Up = "U" }
 export enum Shape { HorizontalLine, Plus, MirroredL, VerticalLine, Square }
 
 export const C = {
@@ -29,29 +29,29 @@ const coordinates: Record<Shape, Coordinate[]> = {
   ],
   [Shape.Plus]: [
     [0, 1],
-    [1, 0],
-    [1, 1],
-    [1, 2],
-    [2, 1],
+    [-1, 0],
+    [-1, 1],
+    [-1, 2],
+    [-2, 1],
   ],
   [Shape.MirroredL]: [
     [0, 2],
-    [1, 2],
-    [2, 2],
-    [2, 1],
-    [2, 0],
+    [-1, 2],
+    [-2, 2],
+    [-2, 1],
+    [-2, 0],
   ],
   [Shape.VerticalLine]: [
     [0, 0],
-    [1, 0],
-    [2, 0],
-    [3, 0],
+    [-1, 0],
+    [-2, 0],
+    [-3, 0],
   ],
   [Shape.Square]: [
     [0, 0],
-    [1, 0],
+    [-1, 0],
     [0, 1],
-    [1, 1],
+    [-1, 1],
   ]
 }
 
@@ -65,9 +65,9 @@ const shapes: Record<Shape, string[][]> = {
     [C.Open, C.Open, C.Open, C.Move, C.Open, C.Open, C.Open],
   ],
   [Shape.MirroredL]: [
-    [C.Open, C.Open, C.Open, C.Open, C.Move, C.Open, C.Open],
-    [C.Open, C.Open, C.Open, C.Open, C.Move, C.Open, C.Open],
     [C.Open, C.Open, C.Move, C.Move, C.Move, C.Open, C.Open],
+    [C.Open, C.Open, C.Open, C.Open, C.Move, C.Open, C.Open],
+    [C.Open, C.Open, C.Open, C.Open, C.Move, C.Open, C.Open],
   ],
   [Shape.VerticalLine]: [
     [C.Open, C.Open, C.Move, C.Open, C.Open, C.Open, C.Open],
@@ -122,7 +122,11 @@ export const moveShape = (map: (string|undefined)[][], anchorCoordiante: Coordin
   // if there are we can't move
   const coords = coordinates[trackingShape].map(coordinate => addLists(coordinate, anchorCoordiante))
   const newCoords = coords.map(coord => [coord[0] - 1, coord[1]])
-  if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]] && map[coord[0]][coord[1]]))) return false
+  if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]] && map[coord[0]][coord[1]]))) {
+    // If we can't move upwards, this piece is stuck and we'll need to replace current coords by walls
+    coords.forEach(coord => { map[coord[0]][coord[1]] = C.Wall })
+    return false
+  }
 
   // If above doesn't hold up, we can move freely
   // First fill the coords with open space, then fill newCoords with moving characters
@@ -131,39 +135,81 @@ export const moveShape = (map: (string|undefined)[][], anchorCoordiante: Coordin
   return true
 }
 
-const relativeStartingLocation = {
-  bottom: 3,
-  left: 2
-}
-
 const order: Shape[] = [Shape.HorizontalLine, Shape.Plus, Shape.MirroredL, Shape.VerticalLine, Shape.Square]
 const getNextShape = (shape: Shape) => {
   const currentI = order.findIndex(s => shape === s) + 1
   return currentI < order.length ? currentI : order[0]
 }
 
+const isEmptyRow = (row: string[]) => row.every(cell => cell === C.Open)
+
 export const solvePart1 = (input: string) => {
+  const inp = [...input.trim().split('').join('^').split(''), '^']
+  
+  const directions = inp.map(i => {
+    if (i === '^') return Move.Up
+    if (i === '>') return Move.Right
+    return Move.Left
+  })
+
+  const _getNextDirection = () => {
+    let directionIndex = -1
+    return () => {
+      if (directionIndex >= directions.length - 1) {
+        directionIndex = 0
+        return directions[directionIndex]
+      }
+      directionIndex++
+      return directions[directionIndex]
+    }
+  }
+  const getNextDirection = _getNextDirection()
+  let currentDirection = getNextDirection()
+
+  const anchorCoordianteRelative = [0, 2]
   const board: string[][] = [
     C.Open.repeat(7).split(''),
     C.Open.repeat(7).split(''),
     C.Open.repeat(7).split(''),
   ]
   let shape = Shape.HorizontalLine
-  let floorLevel = 0 
 
-  // for (const _ of range(0, 2022)) {
-  for (const _ of range(0, 3)) {
-    const newRows = shapes[shape]
-    const window = {
-      from: board.length - 2,
-      to: board.length + newRows.length
+  for (const _ of range(0, 2022)) {
+    const newRows: string[][] = JSON.parse(JSON.stringify(shapes[shape])) // Make copy
+    newRows.forEach(row => board.push(row));
+    let anchorCoordiante: [number, number] = [anchorCoordianteRelative[0] + board.length - 1, anchorCoordianteRelative[1]]
+    
+    // Move inserted piece until it is blocked by upwards movement
+    while(true) {
+      const didMove = moveShape(board, anchorCoordiante, shape, currentDirection)
+      if (didMove && currentDirection === Move.Up) anchorCoordiante = addLists(anchorCoordiante, [-1, 0]) as [number, number]
+      if (didMove && currentDirection === Move.Right) anchorCoordiante = addLists(anchorCoordiante, [0, 1]) as [number, number]
+      if (didMove && currentDirection === Move.Left) anchorCoordiante = addLists(anchorCoordiante, [0, -1]) as [number, number]
+      
+      if (!didMove && currentDirection === Move.Up) {
+        // Count empty rows, make sure there are only 3 empty rows at the end
+        let emptyRows = 0
+        for (let i = board.length - 1; i > 0; i--) {
+          if (!isEmptyRow(board[i])) break
+          emptyRows++
+        }
+
+        while (emptyRows > 3) {
+          board.pop()
+          emptyRows--
+        }
+
+        currentDirection = getNextDirection()
+        break
+      }
+      currentDirection = getNextDirection();
     }
-    newRows.forEach(row => board.push(row))
 
-    // console.log(board.slice(window.from, window.to))
+    shape = getNextShape(shape)
   }
 
-  return 0
+  // [...board].reverse().forEach(r => console.log(r.join('')))
+  return board.length - 3
 }
 
 export const solvePart2 = (input: string) => {
