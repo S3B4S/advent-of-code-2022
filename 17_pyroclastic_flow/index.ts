@@ -208,10 +208,94 @@ export const solvePart1 = (input: string) => {
     shape = getNextShape(shape)
   }
 
-  // [...board].reverse().forEach(r => console.log(r.join('')))
   return board.length - 3
 }
 
+// To be able to simulate 1.000.000.000.000 rocks falling down, we're going to only keep a part of the array in memory
+// Our strategy is as follows, anytime the array is > 1.000.000 elements, we cut the bottom half and keep track of how many
+// rows we've cut along the way. While there is a risk that this could cut the board along some way where there is a column
+// that would hit the floor, I will approximate that that chance is very small, considering we're keeping 500.000 rows.
+
+const CUTOFF_AT = 1000000 // 1.000.000
+const N_ROWS_TO_REMOVE = 500000 // 500.000
+
 export const solvePart2 = (input: string) => {
-  return 0
+  const inp = [...input.trim().split('').join('^').split(''), '^']
+  
+  const directions = inp.map(i => {
+    if (i === '^') return Move.Up
+    if (i === '>') return Move.Right
+    return Move.Left
+  })
+
+  const _getNextDirection = () => {
+    let directionIndex = -1
+    return () => {
+      if (directionIndex >= directions.length - 1) {
+        directionIndex = 0
+        return directions[directionIndex]
+      }
+      directionIndex++
+      return directions[directionIndex]
+    }
+  }
+  const getNextDirection = _getNextDirection()
+  let currentDirection = getNextDirection()
+
+  const anchorCoordianteRelative = [0, 2]
+  const board: string[][] = [
+    C.Open.repeat(7).split(''),
+    C.Open.repeat(7).split(''),
+    C.Open.repeat(7).split(''),
+  ]
+  let shape = Shape.HorizontalLine
+
+  let amountRowsRemoved = 0
+
+  // const total = 1000000000000
+  for (let i = 0; i < 1000; i++) {
+    const newRows: string[][] = JSON.parse(JSON.stringify(shapes[shape])) // Make copy
+    newRows.forEach(row => board.push(row));
+    let anchorCoordiante: [number, number] = [anchorCoordianteRelative[0] + board.length - 1, anchorCoordianteRelative[1]]
+
+    // Move inserted piece until it is blocked by upwards movement
+    while(true) {
+      const didMove = moveShape(board, anchorCoordiante, shape, currentDirection)
+      if (didMove && currentDirection === Move.Up) anchorCoordiante = addLists(anchorCoordiante, [-1, 0]) as [number, number]
+      if (didMove && currentDirection === Move.Right) anchorCoordiante = addLists(anchorCoordiante, [0, 1]) as [number, number]
+      if (didMove && currentDirection === Move.Left) anchorCoordiante = addLists(anchorCoordiante, [0, -1]) as [number, number]
+      
+      if (!didMove && currentDirection === Move.Up) {
+        // Count empty rows, make sure there are only 3 empty rows at the end
+        let emptyRows = 0
+        for (let i = board.length - 1; i > 0; i--) {
+          if (!isEmptyRow(board[i])) break
+          emptyRows++
+        }
+
+        while (emptyRows > 3) {
+          board.pop()
+          emptyRows--
+        }
+
+        currentDirection = getNextDirection()
+        break
+      }
+      currentDirection = getNextDirection();
+    }
+
+    shape = getNextShape(shape)
+
+    // console.log(board.length)
+  
+    if (board.length > CUTOFF_AT) {
+      board.splice(N_ROWS_TO_REMOVE, board.length)
+      
+      amountRowsRemoved += N_ROWS_TO_REMOVE
+    }
+  }
+
+
+  // [...board].reverse().forEach(r => console.log(r.join('')))
+  return amountRowsRemoved + board.length - 3
 }
