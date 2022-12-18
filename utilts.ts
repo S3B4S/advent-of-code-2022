@@ -145,4 +145,5 @@ export const Characters = {
   Tilde: "~",
   Star: "*",
   Plus: "+",
+  At: "@",
 }
