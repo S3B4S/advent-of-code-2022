@@ -1,5 +1,4 @@
 import { monpar } from "deps"
-import { Characters, range } from "utils"
 import { parseNumber } from "../parsing.ts"
 const { liftAs, sentence, char, many, token, unpack } = monpar
 
@@ -9,8 +8,9 @@ interface Coordinate {
 }
 
 interface SensorBeaconCoordinates {
-  sensor: Coordinate,
-  beacon: Coordinate,
+  sensor: Coordinate
+  beacon: Coordinate
+  manhattanDistance: number
 }
 
 export const parseLine = liftAs<SensorBeaconCoordinates>(
@@ -23,7 +23,8 @@ export const parseLine = liftAs<SensorBeaconCoordinates>(
       beacon: {
         x: negativeX.length > 0 ? -1 * beaconX : beaconX,
         y: negativeY.length > 0 ? -1 * beaconY : beaconY,
-      }
+      },
+      manhattanDistance: manhattanDistance({ x: sensorX, y: sensorY }, { x: negativeX.length > 0 ? -1 * beaconX : beaconX, y: negativeY.length > 0 ? -1 * beaconY : beaconY })
     }
   },
   sentence("Sensor at x="),
@@ -39,132 +40,89 @@ export const parseLine = liftAs<SensorBeaconCoordinates>(
 )
 
 const manhattanDistance = (coordiante: Coordinate, other: Coordinate) => {
-  return Math.abs(coordiante.x - other.x) + Math.abs(coordiante.y - other.y)
+  return Math.abs(other.x - coordiante.x) + Math.abs(other.y - coordiante.y)
 }
+
+enum Tile { Beacon = "B", Sensor = "S", Signal = "s" }
 
 export const parseInput = liftAs<SensorBeaconCoordinates[]>(
   (inputs: SensorBeaconCoordinates[]) => inputs,
   many(token(parseLine)),
 )
 
-export const solvePart1 = (input: string) => {
-  const coordinates = unpack(parseInput)(input)!
+export const solvePart1 = (input: string, checkRow: number) => {
+  const beaconSensors = unpack(parseInput)(input)!
 
-  // const bounds = {
-  //   x: {
-  //     max: Number.MIN_VALUE,
-  //     min: Number.MAX_VALUE,
-  //   },
-  //   y: {
-  //     max: Number.MIN_VALUE,
-  //     min: Number.MAX_VALUE,
-  //   }
-  // }
+  // For every sensor, exclude if they're not within the range of the row that needs to check
+  // range being [y coordiante - manhattanDistance, y coordinate + manhattanDistance]
 
-  // Find bounds
-  // for (const { beacon, sensor } of coordinates) {
-  //   bounds.x.max = Math.max(...[bounds.x.max, beacon.x, sensor.x])
-  //   bounds.x.min = Math.min(...[bounds.x.min, beacon.x, sensor.x, 0])
+  const map: Record<string, Tile> = {}
+  const relevantBs = beaconSensors.filter(bs => bs.sensor.y - bs.manhattanDistance <= checkRow && checkRow <= bs.sensor.y + bs.manhattanDistance)
 
-  //   bounds.y.max = Math.max(...[bounds.y.max, beacon.y, sensor.y])
-  //   bounds.y.min = Math.min(...[bounds.y.min, beacon.y, sensor.y, 0])
-  // }
-
-  // Update coordinates by shifting
-  // const shifted = coordinates.map(coordinate => ({
-  //   sensor: {
-  //     x: coordinate.sensor.x + Math.abs(bounds.x.min),
-  //     y: coordinate.sensor.y + Math.abs(bounds.y.min),
-  //   },
-  //   beacon: {
-  //     x: coordinate.beacon.x + Math.abs(bounds.x.min),
-  //     y: coordinate.beacon.y + Math.abs(bounds.y.min),
-  //   },
-  // }))
-
-  const map: string[][] = []
-  for (const { beacon, sensor } of coordinates) {
-    if (!map[beacon.y]) map[beacon.y] = []
-    map[beacon.y][beacon.x] = "B"
-    
-    if (!map[sensor.y]) map[sensor.y] = []
-    map[sensor.y][sensor.x] = "S"
-  }
-
-  fillEmptySpacesWith(map, Characters.Dot)
-
-  for (const bs of coordinates) {
-    // Draw lower triangle
-    let distance = manhattanDistance(bs.sensor, bs.beacon)
-    let y = bs.sensor.y
-
-    // Draw last point (the lowest)
-    if (map[bs.sensor.y + distance] && map[bs.sensor.y + distance][bs.sensor.x]) {
-      map[bs.sensor.y + distance][bs.sensor.x] = Characters.HashTag
-    }
-
-    while (distance !== 0) {
-      for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
-        if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
-          map[y][x] = Characters.HashTag
+  relevantBs.forEach(bs => {
+    const coords = surroundByCoordinatesOnRow(bs.sensor, bs.manhattanDistance, checkRow)
+    coords.forEach(cds => {
+      if (cds[0] === checkRow) {
+        map[cds.toString()] = Tile.Signal
       }
+    })
+  })
 
-      distance--
-      y++
+  // Then add all beacon / sensor coordinates, overwriting the signals
+  relevantBs.forEach(bs => {
+    if (bs.sensor.y === checkRow) {
+      map[[bs.sensor.y, bs.sensor.x].toString()] = Tile.Sensor
     }
-
-    // Draw upper triangle
-    distance = manhattanDistance(bs.sensor, bs.beacon)
-    y = bs.sensor.y
-
-    // Draw first point (the lowest)
-    if (map[bs.sensor.y - distance] && map[bs.sensor.y - distance][bs.sensor.x]) {
-      map[bs.sensor.y - distance][bs.sensor.x] = Characters.HashTag
+    if (bs.beacon.y === checkRow) {
+      map[[bs.beacon.y, bs.beacon.x].toString()] = Tile.Beacon
     }
+  })
 
-    while (distance !== 0) {
-      for (const x of range(Math.max(0, bs.sensor.x - distance), bs.sensor.x + distance + 1)) {
-        if(map[y] && map[y][x] && map[y][x] === Characters.Dot)
-          map[y][x] = Characters.HashTag
-      }
-
-      distance--
-      y--
-    }
-  }
-
-  // console.log(stringifyMap(surroundByCoordinates(map)))
-
-  return 0
+  // Count the amount of signal tiles on the row we're checking for
+  return Object.entries(map).filter(([k, v]) => {
+    const coords = k.split(',').map(c => Number(c)) as [number /* Y */, number /* X */]
+    return coords[0] === checkRow && v === Tile.Signal
+  }).length
 }
 
 export const solvePart2 = (input: string) => {
   return 0
 }
 
-const fillEmptySpacesWith = (map: string[][], filling: string) => {
-  // Find the row with the most columns
-  let maxAmountColumns = 0;
+const surroundByCoordinatesOnRow = (coordinate: Coordinate, distance: number, checkRow: number): [number /* Y */, number /* X */][] => {
+  const coords: [number, number][] = []
+  const yDelta = Math.abs(checkRow - coordinate.y)
+  const rangeX = distance - yDelta
 
-  map.forEach(row => {
-    maxAmountColumns = Math.max(maxAmountColumns, row.length)
-  })
-
-  // For entire map, if there is an empty spot, insert space
-  for (let row = 0; row < map.length; row++) {
-    if (!map[row]) map[row] = []
-    for (let column = 0; column < maxAmountColumns; column++) {
-      if (!map[row][column]) map[row][column] = filling
-    }
+  for (let x = coordinate.x - rangeX; x <= coordinate.x + rangeX; x++) {
+    coords.push([checkRow, x])
   }
+
+  return coords
 }
 
-// Goes up to 100s
-const surroundByCoordinates = (map: any[][]) => [
-  ['   ', ...Array.from({ length: map[0].length }).map((_, i) => String(i).padStart(3, '0')[0])], // 100s
-  ['   ', ...Array.from({ length: map[0].length }).map((_, i) => String(i).padStart(3, '0')[1])], // 10s
-  ['   ', ...Array.from({ length: map[0].length }).map((_, i) => String(i).padStart(3, '0')[2])], // 1s
-  ...map.map((row, i) => [String(i).padStart(3, '0'), ...row, i])
-]
+const surroundingCoordinates = (coordinate: Coordinate, distance: number): [number /* Y */, number /* X */][] => {
+  const coords: [number, number][] = []
+  let rangeX = distance
 
-const stringifyMap = (map: any[][]) => map.map(row => row.join('')).join('\n')
+  // Lower triangle
+  while(rangeX >= 0) {
+    const y = coordinate.y + distance - rangeX
+    for (let x = coordinate.x - rangeX; x <= coordinate.x + rangeX; x++) {
+      coords.push([y, x])
+    }
+    rangeX--
+  }
+
+  rangeX = distance - 1
+  // Upper triangle
+  while (rangeX >= 0) {
+    const y = coordinate.y - (distance - rangeX)
+    for (let x = coordinate.x - rangeX; x <= coordinate.x + rangeX; x++) {
+      coords.push([y, x])
+    }
+    rangeX--
+  }
+
+  return coords
+}
