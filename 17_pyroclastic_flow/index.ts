@@ -1,21 +1,20 @@
 import { addLists, Characters, range } from "../utilts.ts"
 
-export enum Move { Left, Right }
+export enum Move { Left, Right, Up }
 export enum Shape { HorizontalLine, Plus, MirroredL, VerticalLine, Square }
 
 export const C = {
-  Wall: Characters.HashTag,
+  Wall: Characters.WhiteRetroBlock,
   Open: Characters.Dot,
   Move: Characters.At,
 }
 
-// Meaning of symbols
-// Dot      | . | open space
-// At       | @ | Moving block
-// Hashtag  | # | Walls
-
 // Y coordinate goes positive going south
 // X coordinate goes positive going east
+// This means that falling "down" as implied in the puzzle
+// is actually falling up in my solution. I did this to keep
+// using `.push` O(1) instead of `.shift` O(n) considering the array
+// could get pretty large
 
 // It would be possible to also map which coordinates to check
 // depending on going right or left (as we don't need to check all)
@@ -56,7 +55,7 @@ const coordinates: Record<Shape, Coordinate[]> = {
   ]
 }
 
-const shapes: Record<Shape, (string|undefined)[][]> = {
+const shapes: Record<Shape, string[][]> = {
   [Shape.HorizontalLine]: [
     [C.Open, C.Open, C.Move, C.Move, C.Move, C.Move, C.Open]
   ],
@@ -83,36 +82,53 @@ const shapes: Record<Shape, (string|undefined)[][]> = {
 }
 
 /**
- * Each shape is 
- * @param shape 
+ * Mutating!
+ * @param map 
+ * @param anchorCoordiante 
+ * @param trackingShape 
  * @param move 
+ * @returns true if the shape did move, false if it stays in place
  */
-export const moveShape = (map: (string|undefined)[][], anchorCoordiante: Coordinate, trackingShape: Shape, move: Move) => {
+export const moveShape = (map: (string|undefined)[][], anchorCoordiante: Coordinate, trackingShape: Shape, move: Move): boolean => {
   if (move === Move.Right) {
     // For all coordaintes of shape, check if there's a wall or bounds to the right,
     // if there are we can't move
     const coords = coordinates[trackingShape].map(coordinate => addLists(coordinate, anchorCoordiante))
     const newCoords = coords.map(coord => [coord[0], coord[1] + 1])
-    if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]][coord[1]]))) return map
+    if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]][coord[1]]))) return false
 
     // If above doesn't hold up, we can move freely
     // First fill the coords with open space, then fill newCoords with moving characters
     coords.forEach(c => { map[c[0]][c[1]] = C.Open })
     newCoords.forEach(c => { map[c[0]][c[1]] = C.Move })
-    return map
+    return true
+  }
+
+  if (move === Move.Left) {
+    // For all coordaintes of shape, check if there's a wall or bounds to the left,
+    // if there are we can't move
+    const coords = coordinates[trackingShape].map(coordinate => addLists(coordinate, anchorCoordiante))
+    const newCoords = coords.map(coord => [coord[0], coord[1] - 1])
+    if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]][coord[1]]))) return false
+  
+    // If above doesn't hold up, we can move freely
+    // First fill the coords with open space, then fill newCoords with moving characters
+    coords.forEach(c => { map[c[0]][c[1]] = C.Open })
+    newCoords.forEach(c => { map[c[0]][c[1]] = C.Move })
+    return true
   }
   
-  // For all coordaintes of shape, check if there's a wall or bounds to the left,
+  // For all coordaintes of shape, check if there's a wall or bounds to the up,
   // if there are we can't move
   const coords = coordinates[trackingShape].map(coordinate => addLists(coordinate, anchorCoordiante))
-  const newCoords = coords.map(coord => [coord[0], coord[1] - 1])
-  if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]][coord[1]]))) return map
+  const newCoords = coords.map(coord => [coord[0] - 1, coord[1]])
+  if (newCoords.some(coord => [undefined, C.Wall].includes(map[coord[0]] && map[coord[0]][coord[1]]))) return false
 
   // If above doesn't hold up, we can move freely
   // First fill the coords with open space, then fill newCoords with moving characters
   coords.forEach(c => { map[c[0]][c[1]] = C.Open })
   newCoords.forEach(c => { map[c[0]][c[1]] = C.Move })
-  return map
+  return true
 }
 
 const relativeStartingLocation = {
@@ -127,16 +143,24 @@ const getNextShape = (shape: Shape) => {
 }
 
 export const solvePart1 = (input: string) => {
-  const board = [
+  const board: string[][] = [
     C.Open.repeat(7).split(''),
     C.Open.repeat(7).split(''),
     C.Open.repeat(7).split(''),
   ]
   let shape = Shape.HorizontalLine
-  let floorLevel = 0
+  let floorLevel = 0 
 
-  for (const _ of range(0, 2022)) {
-    
+  // for (const _ of range(0, 2022)) {
+  for (const _ of range(0, 3)) {
+    const newRows = shapes[shape]
+    const window = {
+      from: board.length - 2,
+      to: board.length + newRows.length
+    }
+    newRows.forEach(row => board.push(row))
+
+    // console.log(board.slice(window.from, window.to))
   }
 
   return 0
