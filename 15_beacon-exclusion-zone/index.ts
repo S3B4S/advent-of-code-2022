@@ -89,7 +89,7 @@ const BOUNDARIES = {
   low: 0,
   high: 4000000,
 }
-export const solvePart2 = (input: string) => {
+export const solvePart2 = (input: string, checkRow: number) => {
   const beaconSensors = unpack(parseInput)(input)!
 
   // For every sensor, exclude if they're not within the range of the row that needs to check
