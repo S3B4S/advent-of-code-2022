@@ -85,8 +85,43 @@ export const solvePart1 = (input: string, checkRow: number) => {
   }).length
 }
 
+const BOUNDARIES = {
+  low: 0,
+  high: 4000000,
+}
 export const solvePart2 = (input: string) => {
-  return 0
+  const beaconSensors = unpack(parseInput)(input)!
+
+  // For every sensor, exclude if they're not within the range of the row that needs to check
+  // range being [y coordiante - manhattanDistance, y coordinate + manhattanDistance]
+
+  const map: Record<string, Tile> = {}
+  const relevantBs = beaconSensors.filter(bs => bs.sensor.y - bs.manhattanDistance <= checkRow && checkRow <= bs.sensor.y + bs.manhattanDistance)
+
+  relevantBs.forEach(bs => {
+    const coords = surroundByCoordinatesOnRow(bs.sensor, bs.manhattanDistance, checkRow)
+    coords.forEach(cds => {
+      if (cds[0] === checkRow) {
+        map[cds.toString()] = Tile.Signal
+      }
+    })
+  })
+
+  // Then add all beacon / sensor coordinates, overwriting the signals
+  relevantBs.forEach(bs => {
+    if (bs.sensor.y === checkRow) {
+      map[[bs.sensor.y, bs.sensor.x].toString()] = Tile.Sensor
+    }
+    if (bs.beacon.y === checkRow) {
+      map[[bs.beacon.y, bs.beacon.x].toString()] = Tile.Beacon
+    }
+  })
+
+  // Count the amount of signal tiles on the row we're checking for
+  return Object.entries(map).filter(([k, v]) => {
+    const coords = k.split(',').map(c => Number(c)) as [number /* Y */, number /* X */]
+    return coords[0] === checkRow && v === Tile.Signal
+  }).length
 }
 
 const surroundByCoordinatesOnRow = (coordinate: Coordinate, distance: number, checkRow: number): [number /* Y */, number /* X */][] => {
