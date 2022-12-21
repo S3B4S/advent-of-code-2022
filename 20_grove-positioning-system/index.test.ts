@@ -5,7 +5,7 @@ const exampleInput = `
 
 `
 
-const fileInput = Deno.readTextFileSync('./day-20/input.txt')
+const fileInput = Deno.readTextFileSync('./20_grove-positioning-system/input.txt')
 
 Deno.test("Day 20 - Part 1 - Example input", () => {
   assertEquals(0, solvePart1(exampleInput))
