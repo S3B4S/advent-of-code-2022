@@ -2,8 +2,4 @@
   "editor.formatOnSave": false,
   "deno.enable": true,
   "deno.unstable": true,
-  "deno.codeLens.testArgs": [
-    "--allow-all",
-    "--no-check"
-  ]
 }
