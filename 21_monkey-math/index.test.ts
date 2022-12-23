@@ -22,17 +22,17 @@ hmdt: 32
 const fileInput = Deno.readTextFileSync('./21_monkey-math/input.txt')
 
 Deno.test("Day 21 - Part 1 - Example input", () => {
-  assertEquals(0, solvePart1(exampleInput))
+  assertEquals(152, solvePart1(exampleInput))
 })
 
 Deno.test("Day 21 - Part 1 - File input", () => {
-  assertEquals(0, solvePart1(fileInput))
+  assertEquals(158661812617812, solvePart1(fileInput))
 })
 
-Deno.test("Day 21 - Part 2 - Example input", () => {
-  assertEquals(0, solvePart2(exampleInput))
-})
+// Deno.test("Day 21 - Part 2 - Example input", () => {
+//   assertEquals(0, solvePart2(exampleInput))
+// })
 
-Deno.test("Day 21 - Part 2 - File input", () => {
-  assertEquals(0, solvePart2(fileInput))
-})
+// Deno.test("Day 21 - Part 2 - File input", () => {
+//   assertEquals(0, solvePart2(fileInput))
+// })
