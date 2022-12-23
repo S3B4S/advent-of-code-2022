@@ -91,15 +91,21 @@ export class CyclicLinkedList {
   }
 
   move(nodeId: number, amount: number) {
-    const n = amount % this.amountNodes()
-    if (n >= 0) {
-      for (let i = 0; i < n; i++) {
+    // console.log('------')
+    // console.log(amount)
+    // console.log(this.amountNodes())
+    // let n = amount % this.amountNodes()
+    // if (n < 0) n = this.amountNodes() - Math.abs(n) - 1
+    // console.log(n)
+
+    if (amount >= 0) {
+      for (let i = 0; i < amount; i++) {
         this.moveUp(nodeId)
       }
       return
     }
 
-    for (let i = 0; i > n; i--) {
+    for (let i = 0; i > amount; i--) {
       this.moveDown(nodeId)
     }
   }
@@ -110,8 +116,6 @@ export class CyclicLinkedList {
     const a = X.previous as Node
     const c = X.next as Node
     const d = c.next as Node
-
-    if (!(X && X.next && a && c)) return
 
     a.next = c
     c.next = X
@@ -129,8 +133,6 @@ export class CyclicLinkedList {
     const c = X.previous as Node
     const a = c.previous as Node
     const d = X.next as Node // this is a if 3 els
-
-    if (!(X && X.next && a && c)) return
 
     a.next = X
     X.next = c
