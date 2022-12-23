@@ -48,7 +48,48 @@ export const solvePart1 = (input: string) => {
 }
 
 export const solvePart2 = (input: string) => {
-  return 0
+  const initArrangement = lines(input).map(x => Number(x))
+  
+  // Construct cyclic linked list
+  const ll = new CyclicLinkedList()
+
+  const startNode = new Node(initArrangement[0])
+  ll.addNode(0, startNode)
+
+  let prevNode = startNode
+  for (let i = 1; i < initArrangement.length - 1; i++) {
+    const node = new Node(initArrangement[i], prevNode)
+    prevNode.next = node
+    ll.addNode(i, node)
+    prevNode = node
+  }
+
+  const lastNode = new Node(initArrangement.at(-1)!)
+  prevNode.next = lastNode
+  lastNode.previous = prevNode
+  lastNode.next = startNode
+  ll.addNode(initArrangement.length - 1, lastNode)
+  startNode.previous = lastNode
+  // Construction of cyclic linked list done
+
+  // console.log(JSON.stringify(ll.elements.map(n => n.value)))
+  initArrangement.forEach((val, nodeId) => {
+    ll.move(nodeId, val)
+  })
+
+  const node0 = ll.findNode(node => node.value === 0)
+  
+  let sum = 0
+  lookup.forEach(n => {
+    const moves = n % ll.amountNodes()
+    let currentNode = node0
+    for (let i = 0; i < moves; i++) {
+      currentNode = currentNode!.next
+    }
+    sum += currentNode!.value
+  })
+
+  return sum
 }
 
 export class Node {
@@ -91,21 +132,21 @@ export class CyclicLinkedList {
   }
 
   move(nodeId: number, amount: number) {
-    // console.log('------')
-    // console.log(amount)
-    // console.log(this.amountNodes())
-    // let n = amount % this.amountNodes()
-    // if (n < 0) n = this.amountNodes() - Math.abs(n) - 1
-    // console.log(n)
+    // Discover amount of cycles
+    const amountCycles = amount > 0 ? Math.floor(amount / this.amountNodes()) : Math.ceil(amount / this.amountNodes())
+    // Subtract the cycles from the amount
+    const n = amount % this.amountNodes()
 
-    if (amount >= 0) {
-      for (let i = 0; i < amount; i++) {
+    const movePositions = n + amountCycles
+
+    if (movePositions >= 0) {
+      for (let i = 0; i < movePositions; i++) {
         this.moveUp(nodeId)
       }
       return
     }
 
-    for (let i = 0; i > amount; i--) {
+    for (let i = 0; i > movePositions; i--) {
       this.moveDown(nodeId)
     }
   }
