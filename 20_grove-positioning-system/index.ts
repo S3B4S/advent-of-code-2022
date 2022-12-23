@@ -1,4 +1,4 @@
-import { lines } from '../utilts.ts'
+import { lines, range } from '../utilts.ts'
 
 const lookup = [1000, 2000, 3000]
 
@@ -27,7 +27,6 @@ export const solvePart1 = (input: string) => {
   startNode.previous = lastNode
   // Construction of cyclic linked list done
 
-  // console.log(JSON.stringify(ll.elements.map(n => n.value)))
   initArrangement.forEach((val, nodeId) => {
     ll.move(nodeId, val)
   })
@@ -47,8 +46,9 @@ export const solvePart1 = (input: string) => {
   return sum
 }
 
+const DECRYPTION_KEY = 811589153
 export const solvePart2 = (input: string) => {
-  const initArrangement = lines(input).map(x => Number(x))
+  const initArrangement = lines(input).map(x => Number(x) * DECRYPTION_KEY)
   
   // Construct cyclic linked list
   const ll = new CyclicLinkedList()
@@ -72,10 +72,11 @@ export const solvePart2 = (input: string) => {
   startNode.previous = lastNode
   // Construction of cyclic linked list done
 
-  // console.log(JSON.stringify(ll.elements.map(n => n.value)))
-  initArrangement.forEach((val, nodeId) => {
-    ll.move(nodeId, val)
-  })
+  for (const _ of range(0, 10)) {
+    initArrangement.forEach((val, nodeId) => {
+      ll.move(nodeId, val)
+    })
+  }
 
   const node0 = ll.findNode(node => node.value === 0)
   
@@ -132,12 +133,8 @@ export class CyclicLinkedList {
   }
 
   move(nodeId: number, amount: number) {
-    // Discover amount of cycles
-    const amountCycles = amount > 0 ? Math.floor(amount / this.amountNodes()) : Math.ceil(amount / this.amountNodes())
     // Subtract the cycles from the amount
-    const n = amount % this.amountNodes()
-
-    const movePositions = n + amountCycles
+    const movePositions = amount % (this.amountNodes() - 1)
 
     if (movePositions >= 0) {
       for (let i = 0; i < movePositions; i++) {
@@ -151,13 +148,23 @@ export class CyclicLinkedList {
     }
   }
 
+  toString() {
+    let curretNode = this.elements[0]
+    const res = [curretNode.value]
+    for (const _ of range(0, this.amountNodes() - 1)) {
+      curretNode = curretNode.next!
+      res.push(curretNode.value)
+    }
+    return res.join(", ")
+  }
+
   moveUp(nodeId: number) {
     // a X c d => a c X d
     const X = this.elements[nodeId] as Node
     const a = X.previous as Node
     const c = X.next as Node
     const d = c.next as Node
-
+    
     a.next = c
     c.next = X
     X.next = d
@@ -169,11 +176,10 @@ export class CyclicLinkedList {
 
   moveDown(nodeId: number) {
     // a c X d => a X c d
-    // a c X => a X c
     const X = this.elements[nodeId] as Node
     const c = X.previous as Node
     const a = c.previous as Node
-    const d = X.next as Node // this is a if 3 els
+    const d = X.next as Node
 
     a.next = X
     X.next = c
