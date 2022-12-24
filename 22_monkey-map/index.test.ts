@@ -2,10 +2,23 @@ import { assertEquals } from "deps"
 import { solvePart1, solvePart2 } from "./index.ts"
 
 const exampleInput = `
+...#
+.#..
+#...
+....
+...#.......#
+........#...
+..#....#....
+..........#.
+...#....
+.....#..
+.#......
+......#.
 
+10R5L5R10L4R5L5
 `
 
-const fileInput = Deno.readTextFileSync('./day-22/input.txt')
+const fileInput = Deno.readTextFileSync('./22_monkey-map/input.txt')
 
 Deno.test("Day 22 - Part 1 - Example input", () => {
   assertEquals(0, solvePart1(exampleInput))
