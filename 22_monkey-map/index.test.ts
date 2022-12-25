@@ -78,13 +78,13 @@ Deno.test("Day 22 - Part 1 - Example input", () => {
 })
 
 Deno.test("Day 22 - Part 1 - File input", () => {
-  assertEquals(0, solvePart1(fileInput, { y: 0, x: 50 }))
+  assertEquals(162186, solvePart1(fileInput, { y: 0, x: 50 }))
 })
 
-Deno.test("Day 22 - Part 2 - Example input", () => {
-  assertEquals(0, solvePart2(exampleInput))
-})
+// Deno.test("Day 22 - Part 2 - Example input", () => {
+//   assertEquals(0, solvePart2(exampleInput, { y: 0, x: 8 }))
+// })
 
-Deno.test("Day 22 - Part 2 - File input", () => {
-  assertEquals(0, solvePart2(fileInput))
-})
+// Deno.test("Day 22 - Part 2 - File input", () => {
+//   assertEquals(0, solvePart2(fileInput, { y: 0, x: 50 }))
+// })
