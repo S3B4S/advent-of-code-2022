@@ -188,56 +188,89 @@ export const solvePart1StartMarker = (input: string) => {
   return solvePart1(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex })
 }
 
-const move2 = (board: Board, start: Coordinate, dir: Direction, amount: number) => {
-  const amountRows = board.amountRows()
-  const amountColumns = board.amountColumns()
+export type DiceBorder = { from: [Coordinate, Coordinate, Direction, string], to: [Coordinate, Coordinate, Direction] }
+
+/**
+ * Range can be only 1 dimensional, both ends inclusive
+ * @param range
+ * @param c 
+ */
+export const onRange = (range: [Coordinate, Coordinate], c: Coordinate) => {
+  if (range[0].x === range[1].x) {
+    if (range[0].x !== c.x) return false
+
+    // Check y range
+    const lower = Math.min(range[0].y, range[1].y)
+    const higher = Math.max(range[0].y, range[1].y)
+    return lower <= c.y && c.y <= higher
+  }
+
+  if (range[0].y !== c.y) return false
+
+  // Check x range
+  const lower = Math.min(range[0].x, range[1].x)
+  const higher = Math.max(range[0].x, range[1].x)
+  return lower <= c.x && c.x <= higher
+}
+
+// @TODO refactor this to utils file
+const manhattanDistance = (coordiante: Coordinate, other: Coordinate) => {
+  return Math.abs(other.x - coordiante.x) + Math.abs(other.y - coordiante.y)
+}
+
+export const moveAcrossDice = (coordinate: Coordinate, dir: Direction, diceBorders: DiceBorder[]) => {
+  const movingAcross = diceBorders.find(diceBorder => onRange(diceBorder.from.slice(0, 2) as [Coordinate, Coordinate], coordinate) && diceBorder.from[2] === dir)
+
+  // No borders crossed, so just carry on along on these coordinates
+  if (!movingAcross) return {coordinate, direction: dir}
+
+  // Borders found, make the transition
+  const distanceFromLower = manhattanDistance(movingAcross.from[0], coordinate)
   
+  const isIncreasing = movingAcross.to[0].x < movingAcross.to[1].x || movingAcross.to[0].y < movingAcross.to[1].y
+
+  if (movingAcross.to[0].x === movingAcross.to[1].x) {
+    const movingTo = {
+      y: movingAcross.to[0].y + (isIncreasing ? distanceFromLower : -distanceFromLower),
+      x: movingAcross.to[0].x,
+    }
+    // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
+    return { coordinate: movingTo, direction: movingAcross.to[2] }
+  }
+  
+  // Else y coordinate is same
+  const movingTo = {
+    y: movingAcross.to[0].y,
+    x: movingAcross.to[0].x + (isIncreasing ? distanceFromLower : -distanceFromLower),
+  }
+  // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
+  return { coordinate: movingTo, direction: movingAcross.to[2] }
+}
+
+const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: number, diceBorders: DiceBorder[]) => {
   for (const _ of range(0, amount)) {
     // Look ahead a move
     // If it is a wall, stop moving and return
-    const ahead = step(start, dir)
+    let ahead = step(start, dir)
+
+    // Wrap around border if needed
+    const { coordinate, direction } = moveAcrossDice(ahead, dir, diceBorders)
+    ahead = coordinate
+    const tempOldDir = dir
+    dir = direction
 
     if (board.get(ahead) === C.Wall)
-      return { board, start }
+      return { board, start, direction: tempOldDir }
     
     if (board.get(ahead) === C.OpenSpace) {
       start = ahead
       continue
     }
-
-    // The only remaining option is the tile being void
-    let subAhead = ahead
-    // This keeps iterating, including wrapping around
-    // If a wall is found after the void, return the coords
-    // that were still on an open tile. If it is open space after
-    // void, then set ahead to those coords and then continue iterating
-    // from there
-    let flag = true
-    while(flag) {
-      subAhead = step(subAhead, dir)
-      // If stepping out of bounds, wrap around
-      if (subAhead.x < 0) subAhead.x = amountColumns - 1
-      if (subAhead.y < 0) subAhead.y = amountRows - 1
-      if (subAhead.x >= amountColumns) subAhead.x = 0
-      if (subAhead.y >= amountRows) subAhead.y = 0
-      const tile = board.get(subAhead)
-      
-      switch(tile) {
-        case C.Wall:
-          return { start, board }
-        case C.OpenSpace:
-          start = subAhead
-          flag = false
-          break
-        // If it is void, just start next iteration
-        // to keep looking
-      }
-    }
   }
-  return { board, start }
+  return { board, start, direction: dir }
 }
 
-export const solvePart2 = (input: string, startingPosition: Coordinate) => {
+export const solvePart2 = (input: string, startingPosition: Coordinate, diceBorders: DiceBorder[]) => {
   let [boardStr, instructions] = input.split('\n\n')
   instructions = instructions.trim()
 
@@ -256,10 +289,26 @@ export const solvePart2 = (input: string, startingPosition: Coordinate) => {
     const [[amountToMove, remainder]] = parseNumber(instructions)
     instructions = remainder
     
-    const { start: newStart } = move2(board, startingPosition, currentDirection, amountToMove)
+    const { start: newStart, direction } = moveWithDice(board, startingPosition, currentDirection, amountToMove, diceBorders)
     startingPosition = newStart
+    currentDirection = direction
   }
 
-
   return calcScore(startingPosition, currentDirection)
+}
+
+/**
+ * Solves part 2, but you can indicate the starting position on the map with a S
+ * @param input the input as outlined in the puzzle
+ * @returns solution of part 1
+ */
+export const solvePart2StartMarker = (input: string, diceBorders: DiceBorder[]) => {
+  let [boardStr, instructions] = input.split('\n\n')
+  instructions = instructions.trim()
+
+  const board = new Board(boardStr)
+  const rowIndex = board.board.findIndex(row => row.includes(C.Start))
+  const columnIndex = board.board[rowIndex].findIndex(cell => cell === C.Start)
+
+  return solvePart2(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex }, diceBorders)
 }
