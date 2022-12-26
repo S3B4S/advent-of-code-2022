@@ -180,8 +180,20 @@ const diceBordersExampleInput: DiceBorder[] = [
   {
     from: [{ y: 3, x: 4 }, { y: 3, x: 7 }, Direction.North, "N"],
     to: [{ y: 0, x: 8 }, { y: 3, x: 8 }, Direction.East],
+  },
+  {
+    from: [{ y: -1, x: 8 }, { y: -1, x: 11 }, Direction.North, "A"],
+    to: [{ y: 4, x: 3 }, { y: 4, x: 0 }, Direction.South]
   }
 ]
+
+Deno.test("Day 22 - Calculate score", () => {
+  assertEquals(calcScore({ y: 5, x: 7 }, Direction.East), 6032)
+})
+
+Deno.test("Day 22 - Calculate score 2", () => {
+  assertEquals(calcScore({ y: 4, x: 6 }, Direction.North), 5031)
+})
 
 Deno.test("Day 22 - Part 2 - Is on range", () => {
   assertEquals(onRange([{ x: 0, y: 50 }, { x: 0, y: 99 }], { x: 0, y: 66 }), true)
@@ -321,6 +333,66 @@ Deno.test("Day 22 - Part 2 - Example input going up against wall then go right",
 L10R10
 `
   assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 4, x: 10 }, Direction.East))
+})
+
+Deno.test("Day 22 - Part 2 - Example input trip", () => {
+  const input = 
+`        ...#
+        .#..
+        #...
+        ....
+...#..S....#
+........#...
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
+
+L10R10R1LL1RR10L3
+`
+  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
+})
+
+Deno.test("Day 22 - Part 2 - Example input trip 2", () => {
+  const input = 
+`        ...#
+        .#..
+        #...
+        ....
+...#.......#
+........#...
+..#....#..S.
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
+
+3
+`
+  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
+})
+
+Deno.test("Day 22 - Part 2 - Example input trip 3", {only:true}, () => {
+  const input = 
+`        ...#
+        .#..
+        #...
+        ....
+...#.......#
+........#.S.
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
+
+L8
+`
+  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 6, x: 1 }, Direction.South))
 })
 
 Deno.test("Day 22 - Part 2 - File input", () => {

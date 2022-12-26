@@ -248,6 +248,7 @@ export const moveAcrossDice = (coordinate: Coordinate, dir: Direction, diceBorde
 }
 
 const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: number, diceBorders: DiceBorder[]) => {
+  // console.log({amount})
   for (const _ of range(0, amount)) {
     // Look ahead a move
     // If it is a wall, stop moving and return
@@ -290,9 +291,12 @@ export const solvePart2 = (input: string, startingPosition: Coordinate, diceBord
     instructions = remainder
     
     const { start: newStart, direction } = moveWithDice(board, startingPosition, currentDirection, amountToMove, diceBorders)
+
     startingPosition = newStart
     currentDirection = direction
   }
+
+  // console.log({startingPosition})
 
   return calcScore(startingPosition, currentDirection)
 }
