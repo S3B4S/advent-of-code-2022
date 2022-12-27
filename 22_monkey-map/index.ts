@@ -1,6 +1,5 @@
 import { parseNumber } from '../parsing.ts'
 import { Characters, range } from 'utils'
-import { PortalJumps } from './index.test.ts';
 
 const C = {
   OpenSpace: Characters.Dot,
@@ -214,59 +213,28 @@ export const onRange = (range: [Coordinate, Coordinate], c: Coordinate) => {
   return lower <= c.x && c.x <= higher
 }
 
-// @TODO refactor this to utils file
-const manhattanDistance = (coordiante: Coordinate, other: Coordinate) => {
-  return Math.abs(other.x - coordiante.x) + Math.abs(other.y - coordiante.y)
-}
+export const equalCoordinates = (a: Coordinate, b: Coordinate) => a.x === b.x && a.y === b.y
 
-const equalCoordinates = (a: Coordinate, b: Coordinate) => a.x === b.x && a.y === b.y
-
-export const moveAcrossDice = (coordinate: Coordinate, dir: Direction, portalJumps: PortalJumps[]) => {
-  const portal = portalJumps.find(({ from }) => from.coords.some(c => equalCoordinates(c, coordinate)) && from.direction === dir)
-
-  // const portal = diceBorders.find(diceBorder => onRange(diceBorder.from.slice(0, 2) as [Coordinate, Coordinate], coordinate) && diceBorder.from[2] === dir)
+export const takePortal = (coordinate: Coordinate, dir: Direction, portalJumps: PortalJumps[]) => {
+  const portal = portalJumps.find(({ blue }) => blue.coords.some(c => equalCoordinates(c, coordinate)) && blue.direction === dir)
 
   // No portal found, so just carry on along on these coordinates
   if (!portal) return {coordinate, direction: dir}
 
   // Portal found, make the transition
-  const portalIndex = portal.from.coords.findIndex(c => equalCoordinates(c, coordinate))
-
-  const goingTo = portal.to.coords[portalIndex]
-  return { coordinate: goingTo, direction: portal.to.direction }
-
-
-  // const distanceFromLower = manhattanDistance(portal.from[0], coordinate)
-  
-  // const isIncreasing = portal.to[0].x < portal.to[1].x || portal.to[0].y < portal.to[1].y
-
-  // if (portal.to[0].x === portal.to[1].x) {
-  //   const movingTo = {
-  //     y: portal.to[0].y + (isIncreasing ? distanceFromLower : -distanceFromLower),
-  //     x: portal.to[0].x,
-  //   }
-  //   // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
-  //   return { coordinate: movingTo, direction: portal.to[2] }
-  // }
-  
-  // // Else y coordinate is same
-  // const movingTo = {
-  //   y: portal.to[0].y,
-  //   x: portal.to[0].x + (isIncreasing ? distanceFromLower : -distanceFromLower),
-  // }
-  // // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
-  // return { coordinate: movingTo, direction: portal.to[2] }
+  const portalIndex = portal.blue.coords.findIndex(c => equalCoordinates(c, coordinate))
+  const goingTo = portal.orange.coords[portalIndex]
+  return { coordinate: goingTo, direction: portal.orange.direction }
 }
 
-const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: number, portalJumps: PortalJumps[]) => {
-  // console.log({amount})
+const moveAcrossDice = (board: Board, start: Coordinate, dir: Direction, amount: number, portalJumps: PortalJumps[]) => {
   for (const _ of range(0, amount)) {
     // Look ahead a move
     // If it is a wall, stop moving and return
     let ahead = step(start, dir)
 
-    // Wrap around border if needed
-    const { coordinate, direction } = moveAcrossDice(ahead, dir, portalJumps)
+    // Take portal if needed
+    const { coordinate, direction } = takePortal(ahead, dir, portalJumps)
     ahead = coordinate
     const tempOldDir = dir
     dir = direction
@@ -301,13 +269,11 @@ export const solvePart2 = (input: string, startingPosition: Coordinate, portalJu
     const [[amountToMove, remainder]] = parseNumber(instructions)
     instructions = remainder
     
-    const { start: newStart, direction } = moveWithDice(board, startingPosition, currentDirection, amountToMove, portalJumps)
+    const { start: newStart, direction } = moveAcrossDice(board, startingPosition, currentDirection, amountToMove, portalJumps)
 
     startingPosition = newStart
     currentDirection = direction
   }
-
-  // console.log({startingPosition})
 
   return calcScore(startingPosition, currentDirection)
 }
@@ -326,4 +292,107 @@ export const solvePart2StartMarker = (input: string, portalJumps: PortalJumps[])
   const columnIndex = board.board[rowIndex].findIndex(cell => cell === C.Start)
 
   return solvePart2(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex }, portalJumps)
+}
+
+/**
+ * A quadrant holds the most northwest coordinate as the anchor coordinate
+ * The width & height + coordinate are all inclusive
+ */
+export interface Quadrant extends Coordinate {
+  id: number
+  width: number
+  height: number
+}
+
+/**
+ * A portal jumps from blue to orange
+ */
+export interface PortalJumps {
+  blue: {
+    coords: Coordinate[],
+    direction: Direction,
+  },
+  orange: {
+    coords: Coordinate[],
+    direction: Direction,
+  }
+}
+
+/**
+ * Generates an outer border (just lying outside of the quadrant)
+ * @param q The quadrant to generate a border of coordinates for
+ * @param dir The side of the quadrant, representing the border
+ * @param isReverse By default the border is top to bottom or left to right, set this to true to reverse
+ * @returns 
+ */
+export const outerBorder = (q: Quadrant, dir: Direction, isReverse = false) => {
+  let res
+  
+  switch (dir) {
+    case Direction.North:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y - 1, x: i + q.x }))
+      break
+    case Direction.East:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x + q.width }))
+      break
+    case Direction.South:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y + q.height, x: i + q.x }))
+      break
+    case Direction.West:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x - 1 }))
+      break
+  }
+
+  return isReverse ? res.reverse() : res
+}
+
+/**
+ * Generates an inner border (the edge of the quadrant)
+ * @param q The quadrant to generate a border of coordinates for
+ * @param dir The side of the quadrant, representing the border
+ * @param isReverse By default the border is top to bottom or left to right, set this to true to reverse
+ * @returns 
+ */
+export const innerBorder = (q: Quadrant, dir: Direction, isReverse = false) => {
+  let res
+  
+  switch (dir) {
+    case Direction.North:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y, x: i + q.x }))
+      break
+    case Direction.East:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x + q.width - 1 }))
+      break
+    case Direction.South:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y + q.height - 1, x: i + q.x }))
+      break
+    case Direction.West:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x }))
+      break
+  }
+
+  return isReverse ? res.reverse() : res
+}
+
+export const leavesAt = (quadrant: Quadrant, direction: Direction): PortalJumps['blue'] => ({
+  coords: outerBorder(quadrant, direction),
+  direction: direction,
+})
+
+export const arrivesAt = (quadrant: Quadrant, direction: Direction, reverse = false): PortalJumps['orange'] => ({
+  coords: innerBorder(quadrant, direction, reverse),
+  direction: opposite(direction),
+})
+
+export const opposite = (direction: Direction) => {
+  switch (direction) {
+    case Direction.North:
+      return Direction.South
+    case Direction.East:
+      return Direction.West
+    case Direction.South:
+      return Direction.North
+    case Direction.West:
+      return Direction.East
+  }
 }
