@@ -1,5 +1,9 @@
-// deno-lint-ignore-file
-// @TODO Remove above line when starting on this day
+import { Characters, Direction } from "../utilts.ts"
+
+const C = {
+  Elf: Characters.HashTag,
+  OpenSpace: Characters.Dot,
+}
 
 export const solvePart1 = (input: string) => {
   return 0
