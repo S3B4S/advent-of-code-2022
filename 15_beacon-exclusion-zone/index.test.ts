@@ -52,10 +52,10 @@ Deno.test("Day 15 - Part 1 - File input", () => {
   assertEquals(4725496, solvePart1(fileInput, 2000000))
 })
 
-Deno.test("Day 15 - Part 2 - Example input", () => {
-  assertEquals(0, solvePart2(exampleInput))
-})
+// Deno.test("Day 15 - Part 2 - Example input", () => {
+//   assertEquals(0, solvePart2(exampleInput))
+// })
 
-Deno.test("Day 15 - Part 2 - File input", () => {
-  assertEquals(0, solvePart2(fileInput))
-})
+// Deno.test("Day 15 - Part 2 - File input", () => {
+//   assertEquals(0, solvePart2(fileInput))
+// })

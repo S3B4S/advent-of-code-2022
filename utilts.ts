@@ -88,6 +88,19 @@ export type Column = number
 export type Coordinate = [Row, Column]
 export enum Direction { North, East, South, West }
 
+export const opposite = (direction: Direction) => {
+  switch (direction) {
+    case Direction.North:
+      return Direction.South
+    case Direction.East:
+      return Direction.West
+    case Direction.South:
+      return Direction.North
+    case Direction.West:
+      return Direction.East
+  }
+}
+
 /**
  * Iterates over the elements of a 2D map in a given direction from a starting point.
  *
@@ -146,4 +159,42 @@ export const Characters = {
   Star: "*",
   Plus: "+",
   At: "@",
+}
+
+export type ValueOf<T> = T[keyof T]
+
+export interface CoordinateRecord {
+  y: Row,
+  x: Column,
+}
+
+export const equalCoordinates = (a: CoordinateRecord, b: CoordinateRecord) => a.x === b.x && a.y === b.y
+
+// @TODO would be cool if I could pass in record as characters as type parameter to board
+/**
+ * m x n board
+ * Access by y / row first, then by x / column
+ */
+export class Board {
+  content: string[][]
+
+  constructor(boardStr: string) {
+    this.content = boardStr.split('\n').map(l => l.split(''))
+  }
+
+  get(c: CoordinateRecord) {
+    return this.content[c.y] && this.content[c.y][c.x]
+  }
+
+  amountRows() {
+    return this.content.length
+  }
+
+  amountColumns() {
+    return this.content[0].length
+  }
+
+  toString() {
+    return this.content.map(l => l.join('')).join('\n')
+  }
 }

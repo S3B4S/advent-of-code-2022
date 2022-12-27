@@ -1,5 +1,5 @@
 import { parseNumber } from '../parsing.ts'
-import { Characters, range } from 'utils'
+import { Board, Characters, equalCoordinates, opposite, range } from 'utils'
 
 const C = {
   OpenSpace: Characters.Dot,
@@ -11,36 +11,6 @@ const C = {
 export interface Coordinate {
   y: number,
   x: number,
-}
-
-type ValueOf<T> = T[keyof T];
-
-/**
- * m x n board
- * Access by y / row first, then by x / column
- */
-class Board {
-  board: ValueOf<typeof C>[][]
-
-  constructor(boardStr: string) {
-    this.board = boardStr.split('\n').map(l => l.split(''))
-  }
-
-  get(c: Coordinate) {
-    return this.board[c.y] && this.board[c.y][c.x]
-  }
-
-  amountRows() {
-    return this.board.length
-  }
-
-  amountColumns() {
-    return this.board[0].length
-  }
-
-  toString() {
-    return this.board.map(l => l.join('')).join('\n')
-  }
 }
 
 export enum Direction { East, South, West, North }
@@ -182,8 +152,8 @@ export const solvePart1StartMarker = (input: string) => {
   instructions = instructions.trim()
 
   const board = new Board(boardStr)
-  const rowIndex = board.board.findIndex(row => row.includes(C.Start))
-  const columnIndex = board.board[rowIndex].findIndex(cell => cell === C.Start)
+  const rowIndex = board.content.findIndex(row => row.includes(C.Start))
+  const columnIndex = board.content[rowIndex].findIndex(cell => cell === C.Start)
 
   return solvePart1(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex })
 }
@@ -212,8 +182,6 @@ export const onRange = (range: [Coordinate, Coordinate], c: Coordinate) => {
   const higher = Math.max(range[0].x, range[1].x)
   return lower <= c.x && c.x <= higher
 }
-
-export const equalCoordinates = (a: Coordinate, b: Coordinate) => a.x === b.x && a.y === b.y
 
 export const takePortal = (coordinate: Coordinate, dir: Direction, portalJumps: PortalJumps[]) => {
   const portal = portalJumps.find(({ blue }) => blue.coords.some(c => equalCoordinates(c, coordinate)) && blue.direction === dir)
@@ -288,8 +256,8 @@ export const solvePart2StartMarker = (input: string, portalJumps: PortalJumps[])
   instructions = instructions.trim()
 
   const board = new Board(boardStr)
-  const rowIndex = board.board.findIndex(row => row.includes(C.Start))
-  const columnIndex = board.board[rowIndex].findIndex(cell => cell === C.Start)
+  const rowIndex = board.content.findIndex(row => row.includes(C.Start))
+  const columnIndex = board.content[rowIndex].findIndex(cell => cell === C.Start)
 
   return solvePart2(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex }, portalJumps)
 }
@@ -383,16 +351,3 @@ export const arrivesAt = (quadrant: Quadrant, direction: Direction, reverse = fa
   coords: innerBorder(quadrant, direction, reverse),
   direction: opposite(direction),
 })
-
-export const opposite = (direction: Direction) => {
-  switch (direction) {
-    case Direction.North:
-      return Direction.South
-    case Direction.East:
-      return Direction.West
-    case Direction.South:
-      return Direction.North
-    case Direction.West:
-      return Direction.East
-  }
-}

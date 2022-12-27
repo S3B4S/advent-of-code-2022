@@ -181,8 +181,6 @@ export const solvePart2 = (input: string) => {
   // And then add another row that's the floor
   map[map.length] = Array.from({ length: maxAmountColumns }).map(() => Characters.WhiteRetroBlock)
 
-  console.log(stringifyMap(map))
-
   // Start dispensing sand
   let sandLocation = SAND_DISPENSER_COORDINATE
   let sandIstraversing = true
@@ -216,7 +214,6 @@ export const solvePart2 = (input: string) => {
         for (let row = 0; row < map.length; row++) {
           map[row] = [...map[row], columnToFillAbyss[row]]
         }
-        console.log(stringifyMap(map))
       }
       
       if (freeSpaces.includes(map[sandLocation.y + 1][sandLocation.x + 1])) {
@@ -227,7 +224,6 @@ export const solvePart2 = (input: string) => {
 
       // Once the sand can't go any further, and we are at the sand dispenser location, we end the iterations
       if (equal(sandLocation, SAND_DISPENSER_COORDINATE)) {
-        // console.log(stringifyMap(map))
         return amountSand + 1
       }
 
