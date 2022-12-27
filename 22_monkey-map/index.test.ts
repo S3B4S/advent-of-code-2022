@@ -1,5 +1,5 @@
 import { assertEquals } from "deps"
-import { calcScore, solvePart1, solvePart1StartMarker, solvePart2, Direction, onRange, moveAcrossDice, DiceBorder, solvePart2StartMarker } from "./index.ts"
+import { calcScore, solvePart1, solvePart1StartMarker, solvePart2, Direction, onRange, DiceBorder, solvePart2StartMarker, Coordinate } from "./index.ts"
 
 const exampleInput = 
 `        ...#
@@ -106,6 +106,170 @@ const quadrants = [
 ]
 
 /**
+ * A quadrant holds the most northwest coordinate as the anchor coordinate
+ * The width & height + coordinate are all inclusive
+ */
+interface Quadrant extends Coordinate {
+  id: number
+  width: number
+  height: number
+}
+
+const exampleInputQuadrants: (Quadrant | undefined)[] = [
+  undefined, // To make the ids line up with the index
+  { id: 1, y: 0, x: 8, width: 4, height: 4 },
+  { id: 2, y: 4, x: 0, width: 4, height: 4 },
+  { id: 3, y: 4, x: 4, width: 4, height: 4 },
+  { id: 4, y: 4, x: 8, width: 4, height: 4 },
+  { id: 5, y: 8, x: 8, width: 4, height: 4 },
+  { id: 6, y: 8, x: 12, width: 4, height: 4 },
+]
+
+const outerBorder = (q: Quadrant, dir: Direction, isReverse = false) => {
+  let res;
+  
+  switch (dir) {
+    case Direction.North:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y - 1, x: i + q.x }))
+      break
+    case Direction.East:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x + q.width }))
+      break
+    case Direction.South:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y + q.height, x: i + q.x }))
+      break
+    case Direction.West:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x - 1 }))
+      break
+  }
+
+  return isReverse ? res.reverse() : res
+}
+
+const innerBorder = (q: Quadrant, dir: Direction, isReverse = false) => {
+  let res;
+  
+  switch (dir) {
+    case Direction.North:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y, x: i + q.x }))
+      break
+    case Direction.East:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x + q.width - 1 }))
+      break
+    case Direction.South:
+      res = Array.from({ length: q.width }).map((_, i) => ({ y: q.y + q.height - 1, x: i + q.x }))
+      break
+    case Direction.West:
+      res = Array.from({ length: q.height }).map((_, i) => ({ y: i + q.y, x: q.x }))
+      break
+  }
+
+  return isReverse ? res.reverse() : res
+}
+
+Deno.test("Day 22 - Part 2 - Generate north border", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.North), [
+    { y: -1, x: 8 }, { y: -1, x: 9 }, { y: -1, x: 10 }, { y: -1, x: 11 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate east border", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.East), [
+    { y: 0, x: 12 }, { y: 1, x: 12 }, { y: 2, x: 12 }, { y: 3, x: 12 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate south border", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.South), [
+    { y: 4, x: 8 }, { y: 4, x: 9 }, { y: 4, x: 10 }, { y: 4, x: 11 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate west border", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.West), [
+    { y: 0, x: 7 }, { y: 1, x: 7 }, { y: 2, x: 7 }, { y: 3, x: 7 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate north border reverse", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.North, true), [
+    { y: -1, x: 11 }, { y: -1, x: 10 }, { y: -1, x: 9 }, { y: -1, x: 8 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate east border reverse", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.East, true), [
+    { y: 3, x: 12 }, { y: 2, x: 12 }, { y: 1, x: 12 }, { y: 0, x: 12 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate south border reverse", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.South, true), [
+    { y: 4, x: 11 }, { y: 4, x: 10 }, { y: 4, x: 9 }, { y: 4, x: 8 },
+  ])
+})
+
+Deno.test("Day 22 - Part 2 - Generate west border reverse", () => {
+  assertEquals(outerBorder(exampleInputQuadrants[1]!, Direction.West, true), [
+    { y: 3, x: 7 }, { y: 2, x: 7 }, { y: 1, x: 7 }, { y: 0, x: 7 },
+  ])
+})
+
+export interface PortalJumps {
+  from: {
+    coords: Coordinate[],
+    direction: Direction,
+  },
+  to: {
+    coords: Coordinate[],
+    direction: Direction,
+  }
+}
+
+const portalsExampleInput: PortalJumps[] = [
+  {
+    from: {
+      coords: outerBorder(exampleInputQuadrants[3]!, Direction.North),
+      direction: Direction.North,
+    },
+    to: {
+      coords: innerBorder(exampleInputQuadrants[1]!, Direction.West),
+      direction: Direction.East,
+    }
+  },
+  {
+    from: {
+      coords: outerBorder(exampleInputQuadrants[4]!, Direction.East),
+      direction: Direction.East,
+    },
+    to: {
+      coords: innerBorder(exampleInputQuadrants[6]!, Direction.North, true),
+      direction: Direction.South,
+    },
+  },
+  {
+    from: {
+      coords: outerBorder(exampleInputQuadrants[5]!, Direction.South),
+      direction: Direction.South,
+    },
+    to: {
+      coords: innerBorder(exampleInputQuadrants[2]!, Direction.South, true),
+      direction: Direction.North,
+    }
+  },
+  {
+    from: {
+      coords: outerBorder(exampleInputQuadrants[1]!, Direction.North),
+      direction: Direction.North,
+    },
+    to: {
+      coords: innerBorder(exampleInputQuadrants[2]!, Direction.North, true),
+      direction: Direction.South,
+    }
+  }
+]
+
+/**
  * Ranges are inclusive on both ends
  * If the coordinate is on the from 
  * The first coordinate of a range should match
@@ -168,25 +332,6 @@ const diceBordersFileInput: DiceBorder[] = [
   }
 ]
 
-const diceBordersExampleInput: DiceBorder[] = [
-  {
-    from: [{ y: 4, x: 12 }, { y: 7, x: 12 }, Direction.East, "X"],
-    to: [{ y: 8, x: 15 }, { y: 8, x: 12 }, Direction.South],
-  },
-  {
-    from: [{ y: 12, x: 8 }, { y: 12, x: 11 }, Direction.South, "Y"],
-    to: [{ y: 7, x: 3 }, { y: 7, x: 0 }, Direction.North],
-  },
-  {
-    from: [{ y: 3, x: 4 }, { y: 3, x: 7 }, Direction.North, "N"],
-    to: [{ y: 0, x: 8 }, { y: 3, x: 8 }, Direction.East],
-  },
-  {
-    from: [{ y: -1, x: 8 }, { y: -1, x: 11 }, Direction.North, "A"],
-    to: [{ y: 4, x: 3 }, { y: 4, x: 0 }, Direction.South]
-  }
-]
-
 Deno.test("Day 22 - Calculate score", () => {
   assertEquals(calcScore({ y: 5, x: 7 }, Direction.East), 6032)
 })
@@ -227,52 +372,52 @@ Deno.test("Day 22 - Part 2 - x is in range, y is not", () => {
   assertEquals(onRange([{ x: 5, y: 50 }, { x: 10, y: 50 }], { x: 5, y: 51 }), false)
 })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, crimson border", () => {
-  assertEquals(moveAcrossDice({ y: 39, x: 150 }, Direction.West, diceBordersFileInput), { coordinate: { y: 110, x: 99 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, crimson border", () => {
+//   assertEquals(moveAcrossDice({ y: 39, x: 150 }, Direction.West, diceBordersFileInput), { coordinate: { y: 110, x: 99 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, orange border, lower bound", () => {
-  assertEquals(moveAcrossDice({ y: 50, x: 100 }, Direction.South, diceBordersFileInput), { coordinate: { y: 50, x: 99 }, direction: Direction.West })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, orange border, lower bound", () => {
+//   assertEquals(moveAcrossDice({ y: 50, x: 100 }, Direction.South, diceBordersFileInput), { coordinate: { y: 50, x: 99 }, direction: Direction.West })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, orange border, higher bound", () => {
-  assertEquals(moveAcrossDice({ y: 50, x: 149 }, Direction.South, diceBordersFileInput), { coordinate: { y: 99, x: 99 }, direction: Direction.West })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, orange border, higher bound", () => {
+//   assertEquals(moveAcrossDice({ y: 50, x: 149 }, Direction.South, diceBordersFileInput), { coordinate: { y: 99, x: 99 }, direction: Direction.West })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, dark blue border, lower bound", () => {
-  assertEquals(moveAcrossDice({ y: 99, x: 0 }, Direction.North, diceBordersFileInput), { coordinate: { y: 50, x: 50 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, dark blue border, lower bound", () => {
+//   assertEquals(moveAcrossDice({ y: 99, x: 0 }, Direction.North, diceBordersFileInput), { coordinate: { y: 50, x: 50 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, dark blue border, higher bound", () => {
-  assertEquals(moveAcrossDice({ y: 99, x: 49 }, Direction.North, diceBordersFileInput), { coordinate: { y: 99, x: 50 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, dark blue border, higher bound", () => {
+//   assertEquals(moveAcrossDice({ y: 99, x: 49 }, Direction.North, diceBordersFileInput), { coordinate: { y: 99, x: 50 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, purple border 1, lower bound", () => {
-  assertEquals(moveAcrossDice({ y: 100, x: -1 }, Direction.West, diceBordersFileInput), { coordinate: { y: 49, x: 50 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, purple border 1, lower bound", () => {
+//   assertEquals(moveAcrossDice({ y: 100, x: -1 }, Direction.West, diceBordersFileInput), { coordinate: { y: 49, x: 50 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, purple border 1, higher bound", () => {
-  assertEquals(moveAcrossDice({ y: 149, x: -1 }, Direction.West, diceBordersFileInput), { coordinate: { y: 0, x: 50 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, purple border 1, higher bound", () => {
+//   assertEquals(moveAcrossDice({ y: 149, x: -1 }, Direction.West, diceBordersFileInput), { coordinate: { y: 0, x: 50 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, purple border 2, lower bound", () => {
-  assertEquals(moveAcrossDice({ y: 0, x: 49 }, Direction.West, diceBordersFileInput), { coordinate: { y: 149, x: 0 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, purple border 2, lower bound", () => {
+//   assertEquals(moveAcrossDice({ y: 0, x: 49 }, Direction.West, diceBordersFileInput), { coordinate: { y: 149, x: 0 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, purple border 2, higher bound", () => {
-  assertEquals(moveAcrossDice({ y: 49, x: 49 }, Direction.West, diceBordersFileInput), { coordinate: { y: 100, x: 0 }, direction: Direction.East })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, purple border 2, higher bound", () => {
+//   assertEquals(moveAcrossDice({ y: 49, x: 49 }, Direction.West, diceBordersFileInput), { coordinate: { y: 100, x: 0 }, direction: Direction.East })
+// })
 
-Deno.test("Day 22 - Part 2 - Moving across dice, no move necessary", () => {
-  assertEquals(moveAcrossDice({ y: 39, x: 60 }, Direction.North, diceBordersFileInput), { coordinate: { y: 39, x: 60 }, direction: Direction.North })
-})
+// Deno.test("Day 22 - Part 2 - Moving across dice, no move necessary", () => {
+//   assertEquals(moveAcrossDice({ y: 39, x: 60 }, Direction.North, diceBordersFileInput), { coordinate: { y: 39, x: 60 }, direction: Direction.North })
+// })
 
 Deno.test("Day 22 - Part 2 - Example input", () => {
-  assertEquals(solvePart2(exampleInput, { y: 0, x: 8 }, diceBordersExampleInput), 5031)
+  assertEquals(solvePart2(exampleInput, { y: 0, x: 8 }, portalsExampleInput), 5031)
 })
 
 Deno.test("Day 22 - Part 2 - Example input with start marker", () => {
-  assertEquals(solvePart2StartMarker(exampleInputWithStartMarker, diceBordersExampleInput), 5031)
+  assertEquals(solvePart2StartMarker(exampleInputWithStartMarker, portalsExampleInput), 5031)
 })
 
 Deno.test("Day 22 - Part 2 - Example input going up against wall", () => {
@@ -292,7 +437,7 @@ Deno.test("Day 22 - Part 2 - Example input going up against wall", () => {
 
 L10
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 4, x: 6 }, Direction.North))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 4, x: 6 }, Direction.North))
 })
 
 Deno.test("Day 22 - Part 2 - Example input wrap then go against wall", () => {
@@ -312,7 +457,7 @@ Deno.test("Day 22 - Part 2 - Example input wrap then go against wall", () => {
 
 L10
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 0, x: 10 }, Direction.East))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 0, x: 10 }, Direction.East))
 })
 
 Deno.test("Day 22 - Part 2 - Example input going up against wall then go right", () => {
@@ -332,7 +477,7 @@ Deno.test("Day 22 - Part 2 - Example input going up against wall then go right",
 
 L10R10
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 4, x: 10 }, Direction.East))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 4, x: 10 }, Direction.East))
 })
 
 Deno.test("Day 22 - Part 2 - Example input trip", () => {
@@ -352,7 +497,7 @@ Deno.test("Day 22 - Part 2 - Example input trip", () => {
 
 L10R10R1LL1RR10L3
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
 })
 
 Deno.test("Day 22 - Part 2 - Example input trip 2", () => {
@@ -372,10 +517,10 @@ Deno.test("Day 22 - Part 2 - Example input trip 2", () => {
 
 3
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 8, x: 13 }, Direction.South))
 })
 
-Deno.test("Day 22 - Part 2 - Example input trip 3", {only:true}, () => {
+Deno.test("Day 22 - Part 2 - Example input trip 3", () => {
   const input = 
 `        ...#
         .#..
@@ -392,12 +537,12 @@ Deno.test("Day 22 - Part 2 - Example input trip 3", {only:true}, () => {
 
 L8
 `
-  assertEquals(solvePart2StartMarker(input, diceBordersExampleInput), calcScore({ y: 6, x: 1 }, Direction.South))
+  assertEquals(solvePart2StartMarker(input, portalsExampleInput), calcScore({ y: 6, x: 1 }, Direction.South))
 })
 
-Deno.test("Day 22 - Part 2 - File input", () => {
-  // Guesses:
-  // 135054, too high
-  // 16603, too low
-  assertEquals(solvePart2(fileInput, { y: 0, x: 50 }, diceBordersFileInput), 0)
-})
+// Deno.test("Day 22 - Part 2 - File input", () => {
+//   // Guesses:
+//   // 135054, too high
+//   // 16603, too low
+//   assertEquals(solvePart2(fileInput, { y: 0, x: 50 }, diceBordersFileInput), 0)
+// })

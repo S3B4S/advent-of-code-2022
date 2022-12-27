@@ -1,5 +1,6 @@
 import { parseNumber } from '../parsing.ts'
 import { Characters, range } from 'utils'
+import { PortalJumps } from './index.test.ts';
 
 const C = {
   OpenSpace: Characters.Dot,
@@ -218,36 +219,46 @@ const manhattanDistance = (coordiante: Coordinate, other: Coordinate) => {
   return Math.abs(other.x - coordiante.x) + Math.abs(other.y - coordiante.y)
 }
 
-export const moveAcrossDice = (coordinate: Coordinate, dir: Direction, diceBorders: DiceBorder[]) => {
-  const movingAcross = diceBorders.find(diceBorder => onRange(diceBorder.from.slice(0, 2) as [Coordinate, Coordinate], coordinate) && diceBorder.from[2] === dir)
+const equalCoordinates = (a: Coordinate, b: Coordinate) => a.x === b.x && a.y === b.y
 
-  // No borders crossed, so just carry on along on these coordinates
-  if (!movingAcross) return {coordinate, direction: dir}
+export const moveAcrossDice = (coordinate: Coordinate, dir: Direction, portalJumps: PortalJumps[]) => {
+  const portal = portalJumps.find(({ from }) => from.coords.some(c => equalCoordinates(c, coordinate)) && from.direction === dir)
 
-  // Borders found, make the transition
-  const distanceFromLower = manhattanDistance(movingAcross.from[0], coordinate)
+  // const portal = diceBorders.find(diceBorder => onRange(diceBorder.from.slice(0, 2) as [Coordinate, Coordinate], coordinate) && diceBorder.from[2] === dir)
+
+  // No portal found, so just carry on along on these coordinates
+  if (!portal) return {coordinate, direction: dir}
+
+  // Portal found, make the transition
+  const portalIndex = portal.from.coords.findIndex(c => equalCoordinates(c, coordinate))
+
+  const goingTo = portal.to.coords[portalIndex]
+  return { coordinate: goingTo, direction: portal.to.direction }
+
+
+  // const distanceFromLower = manhattanDistance(portal.from[0], coordinate)
   
-  const isIncreasing = movingAcross.to[0].x < movingAcross.to[1].x || movingAcross.to[0].y < movingAcross.to[1].y
+  // const isIncreasing = portal.to[0].x < portal.to[1].x || portal.to[0].y < portal.to[1].y
 
-  if (movingAcross.to[0].x === movingAcross.to[1].x) {
-    const movingTo = {
-      y: movingAcross.to[0].y + (isIncreasing ? distanceFromLower : -distanceFromLower),
-      x: movingAcross.to[0].x,
-    }
-    // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
-    return { coordinate: movingTo, direction: movingAcross.to[2] }
-  }
+  // if (portal.to[0].x === portal.to[1].x) {
+  //   const movingTo = {
+  //     y: portal.to[0].y + (isIncreasing ? distanceFromLower : -distanceFromLower),
+  //     x: portal.to[0].x,
+  //   }
+  //   // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
+  //   return { coordinate: movingTo, direction: portal.to[2] }
+  // }
   
-  // Else y coordinate is same
-  const movingTo = {
-    y: movingAcross.to[0].y,
-    x: movingAcross.to[0].x + (isIncreasing ? distanceFromLower : -distanceFromLower),
-  }
-  // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
-  return { coordinate: movingTo, direction: movingAcross.to[2] }
+  // // Else y coordinate is same
+  // const movingTo = {
+  //   y: portal.to[0].y,
+  //   x: portal.to[0].x + (isIncreasing ? distanceFromLower : -distanceFromLower),
+  // }
+  // // console.log({isIncreasing, coordinate, movingAcross, movingTo, distanceFromLower})
+  // return { coordinate: movingTo, direction: portal.to[2] }
 }
 
-const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: number, diceBorders: DiceBorder[]) => {
+const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: number, portalJumps: PortalJumps[]) => {
   // console.log({amount})
   for (const _ of range(0, amount)) {
     // Look ahead a move
@@ -255,7 +266,7 @@ const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: n
     let ahead = step(start, dir)
 
     // Wrap around border if needed
-    const { coordinate, direction } = moveAcrossDice(ahead, dir, diceBorders)
+    const { coordinate, direction } = moveAcrossDice(ahead, dir, portalJumps)
     ahead = coordinate
     const tempOldDir = dir
     dir = direction
@@ -271,7 +282,7 @@ const moveWithDice = (board: Board, start: Coordinate, dir: Direction, amount: n
   return { board, start, direction: dir }
 }
 
-export const solvePart2 = (input: string, startingPosition: Coordinate, diceBorders: DiceBorder[]) => {
+export const solvePart2 = (input: string, startingPosition: Coordinate, portalJumps: PortalJumps[]) => {
   let [boardStr, instructions] = input.split('\n\n')
   instructions = instructions.trim()
 
@@ -290,7 +301,7 @@ export const solvePart2 = (input: string, startingPosition: Coordinate, diceBord
     const [[amountToMove, remainder]] = parseNumber(instructions)
     instructions = remainder
     
-    const { start: newStart, direction } = moveWithDice(board, startingPosition, currentDirection, amountToMove, diceBorders)
+    const { start: newStart, direction } = moveWithDice(board, startingPosition, currentDirection, amountToMove, portalJumps)
 
     startingPosition = newStart
     currentDirection = direction
@@ -306,7 +317,7 @@ export const solvePart2 = (input: string, startingPosition: Coordinate, diceBord
  * @param input the input as outlined in the puzzle
  * @returns solution of part 1
  */
-export const solvePart2StartMarker = (input: string, diceBorders: DiceBorder[]) => {
+export const solvePart2StartMarker = (input: string, portalJumps: PortalJumps[]) => {
   let [boardStr, instructions] = input.split('\n\n')
   instructions = instructions.trim()
 
@@ -314,5 +325,5 @@ export const solvePart2StartMarker = (input: string, diceBorders: DiceBorder[]) 
   const rowIndex = board.board.findIndex(row => row.includes(C.Start))
   const columnIndex = board.board[rowIndex].findIndex(cell => cell === C.Start)
 
-  return solvePart2(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex }, diceBorders)
+  return solvePart2(input.replace(C.Start, C.OpenSpace), { y: rowIndex, x: columnIndex }, portalJumps)
 }
