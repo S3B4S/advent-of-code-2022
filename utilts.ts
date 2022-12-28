@@ -87,14 +87,14 @@ export type Row = number
 export type Column = number
 export type Coordinate = [Row, Column]
 export enum Direction {
-  NorthWest,
-  North,
-  NorthEast,
-  East,
-  SouthEast,
-  South,
-  SouthWest,
-  West,
+  NorthWest = "NW",
+  North = "N",
+  NorthEast = "NE",
+  East = "E",
+  SouthEast = "SE",
+  South = "S",
+  SouthWest = "SW",
+  West = "W",
 }
 
 export const opposite = (direction: Direction) => {
@@ -253,7 +253,9 @@ export class Board {
 
   adjacentCoordinates(coord: CoordinateRecord, limitedTo?: Direction[]) {
     // @Check why is Object.keys unsafe
-    const checkDirections: Direction[] = limitedTo ?? (Object.keys(relativeCoordinates).map(k => Number(k)) as unknown as Direction[])
+    // console.log(coord)
+    const checkDirections: Direction[] = limitedTo ?? (Object.keys(relativeCoordinates) as unknown as Direction[])
+    // console.log(checkDirections)
     
     return checkDirections
       .map(dir => addCoordinate(relativeCoordinates[dir], coord))
