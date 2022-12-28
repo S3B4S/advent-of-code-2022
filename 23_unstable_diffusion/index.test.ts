@@ -1,14 +1,33 @@
 import { assertEquals } from "deps"
 import { solvePart1, solvePart2 } from "./index.ts"
 
-const exampleInput = `
+const smallerExampleInput = `
+.....
+..##.
+..#..
+.....
+..##.
+.....
+`
 
+const exampleInput = `
+....#..
+..###.#
+#...#.#
+.#...##
+#.###..
+##.#.##
+.#..#..
 `
 
 const fileInput = Deno.readTextFileSync('./23_unstable_diffusion/input.txt')
 
+Deno.test("Day 23 - Part 1 - Smaller example input", {only:true} , () => {
+  assertEquals(110, solvePart1(smallerExampleInput))
+})
+
 Deno.test("Day 23 - Part 1 - Example input", () => {
-  assertEquals(0, solvePart1(exampleInput))
+  assertEquals(110, solvePart1(exampleInput))
 })
 
 Deno.test("Day 23 - Part 1 - File input", () => {
