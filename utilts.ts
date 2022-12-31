@@ -252,10 +252,8 @@ export class Board {
   }
 
   adjacentCoordinates(coord: CoordinateRecord, limitedTo?: Direction[]) {
-    // @Check why is Object.keys unsafe
-    // console.log(coord)
+    // @TODO Check why Object.keys is unsafe
     const checkDirections: Direction[] = limitedTo ?? (Object.keys(relativeCoordinates) as unknown as Direction[])
-    // console.log(checkDirections)
     
     return checkDirections
       .map(dir => addCoordinate(relativeCoordinates[dir], coord))
